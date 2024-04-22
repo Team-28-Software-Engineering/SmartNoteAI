@@ -1,0 +1,26 @@
+name: Status Checks
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Add your steps for code validation, linting, formatting, etc.
+      # Example:
+      # - name: Run unit tests
+      #   run: gradlew.bat test
+
+      # - name: Run code formatting check
+      #   run: gradlew.bat spotlessCheck
+
+      # - name: Run code linting check
+      #   run: gradlew.bat lint
+
+  # Add more jobs for additional checks if needed

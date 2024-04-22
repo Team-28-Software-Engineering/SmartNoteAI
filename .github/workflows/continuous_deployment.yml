@@ -1,0 +1,28 @@
+name: Continuous Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Add your steps for building and deploying your application
+      # Example:
+      # - name: Set up JDK
+      #   uses: actions/setup-java@v2
+      #   with:
+      #     java-version: '11'
+
+      # - name: Build application
+      #   run: ./gradlew build
+
+      # - name: Deploy application
+      #   run: |
+      #     # Add your deployment commands here
+      #     # For example: scp -r ./dist/* user@your-server:/path/to/deploy
