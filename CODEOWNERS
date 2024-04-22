@@ -2,9 +2,9 @@
 # Each line specifies a file pattern followed by one or more GitHub usernames or team names
 
 # For example:
-# Assign the owner for all files in the 'src' directory to the user 'john'
-/src/       @john
+# Assign the owner for all files in the 'src' directory to the user 'hoangbuituananh132109'
+/src/       @hoangbuituananh132109
 
 # Assign the owner for all files in the 'docs' directory to the team 'docs-team'
-/docs/      @docs-team
+/docs/      @Team-28-Software-Engineering
 
