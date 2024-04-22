@@ -1,0 +1,20 @@
+name: Checkstyle
+
+on: [push, pull_request]
+
+jobs:
+  checkstyle:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+
+      - name: Run Checkstyle
+        run: |
+          wget https://github.com/checkstyle/checkstyle/releases/download/checkstyle-8.46/checkstyle-8.46-all.jar -O checkstyle.jar
+          java -jar checkstyle.jar -c path/to/checkstyle.xml /workspaces/Note/code/Main.java
