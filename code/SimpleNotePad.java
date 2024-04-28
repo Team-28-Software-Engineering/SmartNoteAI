@@ -1,7 +1,10 @@
 import java.awt.BorderLayout;
-
-import javax.swing.JFileChooser;
+import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import javax.swing.JFrame;
+import javax.swing.JColorChooser;
+import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -28,10 +31,12 @@ public class SimpleNotePad extends JFrame {
         JMenuItem openMenuItem = new JMenuItem("Open");
         JMenuItem saveMenuItem = new JMenuItem("Save");
         JMenuItem saveAsMenuItem = new JMenuItem("Save As");
+        JMenuItem changeBgColorMenuItem = new JMenuItem("Change Background Color"); // New menu item
         fileMenu.add(newMenuItem);
         fileMenu.add(openMenuItem);
         fileMenu.add(saveMenuItem);
         fileMenu.add(saveAsMenuItem);
+        fileMenu.add(changeBgColorMenuItem); // Add the new menu item
         menuBar.add(fileMenu);
 
         JMenu editMenu = new JMenu("Edit");
@@ -56,8 +61,26 @@ public class SimpleNotePad extends JFrame {
         openMenuItem.addActionListener(actionHandler);
         saveMenuItem.addActionListener(actionHandler);
         saveAsMenuItem.addActionListener(actionHandler);
+        changeBgColorMenuItem.addActionListener(new ActionListener() { // Add action listener for background color change
+            public void actionPerformed(ActionEvent e) {
+                changeBackgroundColor();
+            }
+        });
 
         setVisible(true);
+    }
+
+    // Method to change background color
+    private void changeBackgroundColor() {
+        Color bgColor = JColorChooser.showDialog(this, "Choose Background Color", textArea.getBackground());
+        if (bgColor != null) {
+            textArea.setBackground(bgColor);
+            // Update background color for JMenuBar
+            JMenuBar menuBar = getJMenuBar();
+            if (menuBar != null) {
+                menuBar.setBackground(bgColor);
+            }
+        }
     }
 
     public static void main(String[] args) {
