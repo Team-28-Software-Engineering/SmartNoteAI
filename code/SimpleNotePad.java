@@ -7,7 +7,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JColorChooser;
@@ -56,12 +57,14 @@ public class SimpleNotePad extends JFrame {
         JMenuItem saveAsMenuItem = new JMenuItem("Save As");
         JMenuItem changeBgColorMenuItem = new JMenuItem("Change Background Color");
         JMenuItem previewMenuItem = new JMenuItem("Preview File");
+        JMenuItem tagFilesMenuItem = new JMenuItem("Tag Files"); // New menu item for tagging files
         fileMenu.add(newMenuItem);
         fileMenu.add(openMenuItem);
         fileMenu.add(saveMenuItem);
         fileMenu.add(saveAsMenuItem);
         fileMenu.add(changeBgColorMenuItem);
         fileMenu.add(previewMenuItem);
+        fileMenu.add(tagFilesMenuItem); // Add the new menu item
         menuBar.add(fileMenu);
 
         JMenu editMenu = new JMenu("Edit");
@@ -96,6 +99,11 @@ public class SimpleNotePad extends JFrame {
                 previewFile();
             }
         });
+        tagFilesMenuItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                tagFiles();
+            }
+        });
 
         setVisible(true);
     }
@@ -112,24 +120,50 @@ public class SimpleNotePad extends JFrame {
     }
 
     private void previewFile() {
-    int returnVal = fileChooser.showOpenDialog(this);
-    if (returnVal == JFileChooser.APPROVE_OPTION) {
-        File file = fileChooser.getSelectedFile();
-        StringBuilder fileContent = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            String line;
-            int lineCount = 0;
-            while ((line = reader.readLine()) != null && lineCount < 10) {
-                fileContent.append(line).append("\n");
-                lineCount++;
+        int returnVal = fileChooser.showOpenDialog(this);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();
+            StringBuilder fileContent = new StringBuilder();
+            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                String line;
+                int lineCount = 0;
+                while ((line = reader.readLine()) != null && lineCount < 10) {
+                    fileContent.append(line).append("\n");
+                    lineCount++;
+                }
+            } catch (IOException ex) {
+                ex.printStackTrace();
             }
-        } catch (IOException ex) {
-            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, fileContent.toString(), "Preview", JOptionPane.PLAIN_MESSAGE);
         }
-        // Show the file content in a dialog
-        JOptionPane.showMessageDialog(this, fileContent.toString(), "Preview", JOptionPane.PLAIN_MESSAGE);
     }
-}
+
+    private void tagFiles() {
+        String tag = JOptionPane.showInputDialog(this, "Enter tag:");
+        if (tag != null && !tag.isEmpty()) {
+            List<File> taggedFiles = findFilesWithTag(tag);
+            if (taggedFiles.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "No files found with tag: " + tag, "Tag Files", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                StringBuilder message = new StringBuilder("Files with tag '" + tag + "':\n");
+                for (File file : taggedFiles) {
+                    message.append(file.getAbsolutePath()).append("\n");
+                }
+                JOptionPane.showMessageDialog(this, message.toString(), "Tag Files", JOptionPane.INFORMATION_MESSAGE);
+            }
+        }
+    }
+
+    private List<File> findFilesWithTag(String tag) {
+        List<File> taggedFiles = new ArrayList<>();
+        File[] files = fileChooser.getCurrentDirectory().listFiles();
+        for (File file : files) {
+            if (file.getName().contains(tag)) {
+                taggedFiles.add(file);
+            }
+        }
+        return taggedFiles;
+    }
 
     public static void main(String[] args) {
         new SimpleNotePad();
