@@ -55,7 +55,6 @@ public class SimpleNotePad extends JFrame {
         JMenuItem openMenuItem = new JMenuItem("Open");
         JMenuItem saveMenuItem = new JMenuItem("Save");
         JMenuItem saveAsMenuItem = new JMenuItem("Save As");
-        JMenuItem changeBgColorMenuItem = new JMenuItem("Change Background Color");
         JMenuItem previewMenuItem = new JMenuItem("Preview File");
         JMenuItem tagFilesMenuItem = new JMenuItem("Tag Files"); // New menu item for tagging files
         JMenuItem exportHTMLMenuItem = new JMenuItem("Export as HTML");
@@ -76,7 +75,6 @@ public class SimpleNotePad extends JFrame {
         fileMenu.add(openMenuItem);
         fileMenu.add(saveMenuItem);
         fileMenu.add(saveAsMenuItem);
-        fileMenu.add(changeBgColorMenuItem);
         fileMenu.add(previewMenuItem);
         fileMenu.add(tagFilesMenuItem);
         fileMenu.add(exportHTMLMenuItem); // Add export HTML menu item
@@ -106,6 +104,17 @@ public class SimpleNotePad extends JFrame {
         menuBar.add(editMenu);
 
         setJMenuBar(menuBar);
+        JMenu formatMenu = new JMenu("Format");
+
+        JMenuItem fontMenuItem = new JMenuItem("Font");
+        JMenuItem fontSizeMenuItem = new JMenuItem("Font Size");
+        JMenuItem fontColorMenuItem = new JMenuItem("Font Color");
+        JMenuItem backgroundColorMenuItem = new JMenuItem("Background Color");
+        formatMenu.add(fontMenuItem);
+        formatMenu.add(fontSizeMenuItem);
+        formatMenu.add(fontColorMenuItem);
+        formatMenu.add(backgroundColorMenuItem);
+        menuBar.add(formatMenu);
 
         fileChooser = new JFileChooser();
         ActionHandler actionHandler = new ActionHandler(textArea, fileChooser);
@@ -114,6 +123,33 @@ public class SimpleNotePad extends JFrame {
         openMenuItem.addActionListener(actionHandler);
         saveMenuItem.addActionListener(actionHandler);
         saveAsMenuItem.addActionListener(actionHandler);
+        fontMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                chooseFont();
+            }
+        });
+        
+        fontSizeMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                chooseFontSize();
+            }
+        });
+        
+        fontColorMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                chooseFontColor();
+            }
+        });
+        
+        backgroundColorMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                changeBackgroundColor();
+            }
+        });
         // Enable undo and redo support
         undoStack = new Stack<>();
         redoStack = new Stack<>();
@@ -169,11 +205,6 @@ public class SimpleNotePad extends JFrame {
                 }
             }
         });
-        changeBgColorMenuItem.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                changeBackgroundColor();
-            }
-        });
         previewMenuItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 previewFile();
@@ -225,16 +256,7 @@ public class SimpleNotePad extends JFrame {
         setVisible(true);
     }
 
-    private void changeBackgroundColor() {
-        Color bgColor = JColorChooser.showDialog(this, "Choose Background Color", textArea.getBackground());
-        if (bgColor != null) {
-            textArea.setBackground(bgColor);
-            JMenuBar menuBar = getJMenuBar();
-            if (menuBar != null) {
-                menuBar.setBackground(bgColor);
-            }
-        }
-    }
+
 
     private void previewFile() {
         int returnVal = fileChooser.showOpenDialog(this);
@@ -320,6 +342,41 @@ public class SimpleNotePad extends JFrame {
             undoStack.push(edit);
         }
     }
+    private void changeBackgroundColor() {
+        Color bgColor = JColorChooser.showDialog(this, "Choose Background Color", textArea.getBackground());
+        if (bgColor != null) {
+            textArea.setBackground(bgColor);
+            JMenuBar menuBar = getJMenuBar();
+            if (menuBar != null) {
+                menuBar.setBackground(bgColor);
+            }
+        }
+    }
+    private void chooseFont() {
+        Font selectedFont = JFontChooser.showDialog(this, "Choose Font", textArea.getFont());
+        if (selectedFont != null) {
+            textArea.setFont(selectedFont);
+        }
+    }
+    
+    private void chooseFontSize() {
+        String input = JOptionPane.showInputDialog(this, "Enter Font Size:");
+        if (input != null && !input.isEmpty()) {
+            try {
+                int size = Integer.parseInt(input);
+                textArea.setFont(textArea.getFont().deriveFont((float) size));
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Invalid input. Please enter a valid font size.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+    
+    private void chooseFontColor() {
+        Color fontColor = JColorChooser.showDialog(this, "Choose Font Color", textArea.getForeground());
+        if (fontColor != null) {
+            textArea.setForeground(fontColor);
+        }
+    }
     private void exportAsHTML() {
         HTMLExporter.export(textArea);
     }
@@ -330,6 +387,7 @@ public class SimpleNotePad extends JFrame {
     private void exportAsJSON() {
         JSONExporter.export(textArea);
     }
+    
     public static void main(String[] args) {
         new SimpleNotePad();
     }
