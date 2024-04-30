@@ -1,4 +1,9 @@
 import javax.swing.*;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultHighlighter;
+import javax.swing.text.Highlighter;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -8,10 +13,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SimpleNotePad extends JFrame {
+    private Highlighter.HighlightPainter highlightPainter = new DefaultHighlighter.DefaultHighlightPainter(Color.YELLOW);
     private JTextArea textArea;
     private JFileChooser fileChooser;
     private String currentFile;
-
+    
     public SimpleNotePad() {
         setTitle("Simple Notepad");
         setSize(800, 600);
@@ -46,12 +52,15 @@ public class SimpleNotePad extends JFrame {
         JMenuItem exportHTMLMenuItem = new JMenuItem("Export as HTML");
         JMenuItem exportXMLMenuItem = new JMenuItem("Export as XML");
         JMenuItem exportJSONMenuItem = new JMenuItem("Export as JSON");
+        JMenuItem findMenuItem = new JMenuItem("Find");
+
 
         // Thêm phím tắt cho các menu item
         newMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
         openMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
         saveMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
         saveAsMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | KeyEvent.SHIFT_DOWN_MASK));
+        findMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
 
         fileMenu.add(newMenuItem);
         fileMenu.add(openMenuItem);
@@ -63,6 +72,7 @@ public class SimpleNotePad extends JFrame {
         fileMenu.add(exportHTMLMenuItem); // Add export HTML menu item
         fileMenu.add(exportXMLMenuItem); // Add export XML menu item
         fileMenu.add(exportJSONMenuItem); // Add export JSON menu item
+        fileMenu.add(findMenuItem);
 
         menuBar.add(fileMenu);
 
@@ -88,6 +98,15 @@ public class SimpleNotePad extends JFrame {
         openMenuItem.addActionListener(actionHandler);
         saveMenuItem.addActionListener(actionHandler);
         saveAsMenuItem.addActionListener(actionHandler);
+        findMenuItem.addActionListener(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+                String searchText = JOptionPane.showInputDialog(SimpleNotePad.this, "Enter text to find:");
+                if (searchText != null && !searchText.isEmpty()) {
+                    highlightText(searchText);
+                }
+            }
+        });
         changeBgColorMenuItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 changeBackgroundColor();
@@ -122,6 +141,22 @@ public class SimpleNotePad extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 exportAsJSON();
+            }
+        });
+        textArea.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                removeAllHighlights();
+            }
+        
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                removeAllHighlights();
+            }
+        
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                // Do nothing
             }
         });
 
@@ -184,7 +219,30 @@ public class SimpleNotePad extends JFrame {
         }
         return taggedFiles;
     }
+    
+    
+    // Phương thức để loại bỏ việc bôi vàng
+    private void removeAllHighlights() {
+        Highlighter highlighter = textArea.getHighlighter();
+        highlighter.removeAllHighlights();
+    }
+    private void highlightText(String searchText) {
+    Highlighter highlighter = textArea.getHighlighter();
+    highlighter.removeAllHighlights(); // Xóa tất cả các nổi bật trước đó
 
+    String text = textArea.getText();
+    int index = text.indexOf(searchText);
+    while (index >= 0) {
+        try {
+            highlighter.addHighlight(index, index + searchText.length(), highlightPainter);
+            index = text.indexOf(searchText, index + 1);
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
+    }
+
+    textArea.requestFocusInWindow(); // Đảm bảo JTextArea được focus để cuộn đến vị trí của văn bản nổi bật đầu tiên
+    }
     private void exportAsHTML() {
         HTMLExporter.export(textArea);
     }
