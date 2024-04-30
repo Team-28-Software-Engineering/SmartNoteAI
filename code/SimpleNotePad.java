@@ -1,5 +1,4 @@
 import javax.swing.*;
-
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -47,6 +46,12 @@ public class SimpleNotePad extends JFrame {
         JMenuItem exportHTMLMenuItem = new JMenuItem("Export as HTML");
         JMenuItem exportXMLMenuItem = new JMenuItem("Export as XML");
         JMenuItem exportJSONMenuItem = new JMenuItem("Export as JSON");
+
+        // Thêm phím tắt cho các menu item
+        newMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+        openMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+        saveMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+        saveAsMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | KeyEvent.SHIFT_DOWN_MASK));
 
         fileMenu.add(newMenuItem);
         fileMenu.add(openMenuItem);
