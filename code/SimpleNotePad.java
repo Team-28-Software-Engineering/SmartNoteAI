@@ -2,8 +2,13 @@ import javax.swing.*;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
+import javax.swing.undo.UndoManager;
+import javax.swing.undo.UndoableEdit;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.event.UndoableEditEvent;
+import javax.swing.event.UndoableEditListener;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -11,12 +16,16 @@ import java.awt.event.KeyEvent;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 public class SimpleNotePad extends JFrame {
     private Highlighter.HighlightPainter highlightPainter = new DefaultHighlighter.DefaultHighlightPainter(Color.YELLOW);
     private JTextArea textArea;
     private JFileChooser fileChooser;
     private String currentFile;
+    private Stack<UndoableEdit> undoStack;
+    private Stack<UndoableEdit> redoStack;
+    private int maxUndoRedoSteps = 10; // Limit undo and redo steps to 10
     
     public SimpleNotePad() {
         setTitle("Simple Notepad");
@@ -61,6 +70,7 @@ public class SimpleNotePad extends JFrame {
         saveMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
         saveAsMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | KeyEvent.SHIFT_DOWN_MASK));
         findMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+        
 
         fileMenu.add(newMenuItem);
         fileMenu.add(openMenuItem);
@@ -82,6 +92,12 @@ public class SimpleNotePad extends JFrame {
         JMenuItem cutMenuItem = new JMenuItem("Cut");
         JMenuItem copyMenuItem = new JMenuItem("Copy");
         JMenuItem pasteMenuItem = new JMenuItem("Paste");
+        undoMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+        redoMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+        cutMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+        copyMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+        pasteMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+
         editMenu.add(undoMenuItem);
         editMenu.add(redoMenuItem);
         editMenu.add(cutMenuItem);
@@ -98,6 +114,52 @@ public class SimpleNotePad extends JFrame {
         openMenuItem.addActionListener(actionHandler);
         saveMenuItem.addActionListener(actionHandler);
         saveAsMenuItem.addActionListener(actionHandler);
+        // Enable undo and redo support
+        undoStack = new Stack<>();
+        redoStack = new Stack<>();
+        textArea.getDocument().addUndoableEditListener(new UndoableEditListener() {
+            @Override
+            public void undoableEditHappened(UndoableEditEvent e) {
+                if (undoStack.size() == maxUndoRedoSteps) {
+                    undoStack.remove(0); // Remove the oldest edit if the stack is full
+                }
+                undoStack.push(e.getEdit());
+                redoStack.clear(); // Clear redo stack on new edit
+            }
+        });        
+        undoMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                undo();
+            }
+        });
+        redoMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                redo();
+            }
+        });
+        cutMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                textArea.cut();
+            }
+        });
+        
+        copyMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                textArea.copy();
+            }
+        });
+        
+        pasteMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                textArea.paste();
+            }
+        });
+        
         findMenuItem.addActionListener(new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -242,6 +304,21 @@ public class SimpleNotePad extends JFrame {
     }
 
     textArea.requestFocusInWindow(); // Đảm bảo JTextArea được focus để cuộn đến vị trí của văn bản nổi bật đầu tiên
+    }
+    private void undo() {
+        if (!undoStack.isEmpty()) {
+            UndoableEdit edit = undoStack.pop();
+            edit.undo();
+            redoStack.push(edit);
+        }
+    }
+
+    private void redo() {
+        if (!redoStack.isEmpty()) {
+            UndoableEdit edit = redoStack.pop();
+            edit.redo();
+            undoStack.push(edit);
+        }
     }
     private void exportAsHTML() {
         HTMLExporter.export(textArea);
