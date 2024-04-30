@@ -1,26 +1,12 @@
-import java.awt.BorderLayout;
-import java.awt.Color;
+import javax.swing.*;
+
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.JColorChooser;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.KeyStroke;
 
 public class SimpleNotePad extends JFrame {
     private JTextArea textArea;
@@ -58,13 +44,21 @@ public class SimpleNotePad extends JFrame {
         JMenuItem changeBgColorMenuItem = new JMenuItem("Change Background Color");
         JMenuItem previewMenuItem = new JMenuItem("Preview File");
         JMenuItem tagFilesMenuItem = new JMenuItem("Tag Files"); // New menu item for tagging files
+        JMenuItem exportHTMLMenuItem = new JMenuItem("Export as HTML");
+        JMenuItem exportXMLMenuItem = new JMenuItem("Export as XML");
+        JMenuItem exportJSONMenuItem = new JMenuItem("Export as JSON");
+
         fileMenu.add(newMenuItem);
         fileMenu.add(openMenuItem);
         fileMenu.add(saveMenuItem);
         fileMenu.add(saveAsMenuItem);
         fileMenu.add(changeBgColorMenuItem);
         fileMenu.add(previewMenuItem);
-        fileMenu.add(tagFilesMenuItem); // Add the new menu item
+        fileMenu.add(tagFilesMenuItem);
+        fileMenu.add(exportHTMLMenuItem); // Add export HTML menu item
+        fileMenu.add(exportXMLMenuItem); // Add export XML menu item
+        fileMenu.add(exportJSONMenuItem); // Add export JSON menu item
+
         menuBar.add(fileMenu);
 
         JMenu editMenu = new JMenu("Edit");
@@ -102,6 +96,27 @@ public class SimpleNotePad extends JFrame {
         tagFilesMenuItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 tagFiles();
+            }
+        });
+
+        exportHTMLMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                exportAsHTML();
+            }
+        });
+
+        exportXMLMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                exportAsXML();
+            }
+        });
+
+        exportJSONMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                exportAsJSON();
             }
         });
 
@@ -165,6 +180,16 @@ public class SimpleNotePad extends JFrame {
         return taggedFiles;
     }
 
+    private void exportAsHTML() {
+        HTMLExporter.export(textArea);
+    }
+    
+    private void exportAsXML() {
+        XMLExporter.export(textArea);
+    }
+    private void exportAsJSON() {
+        JSONExporter.export(textArea);
+    }
     public static void main(String[] args) {
         new SimpleNotePad();
     }
