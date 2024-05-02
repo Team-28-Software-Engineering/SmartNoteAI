@@ -19,6 +19,9 @@ import java.util.List;
 import java.util.Stack;
 
 public class SimpleNotePad extends JFrame {
+    private JLabel wordCountLabel;
+    private JLabel charCountLabel;
+    private JLabel lineCountLabel;
     private Highlighter.HighlightPainter highlightPainter = new DefaultHighlighter.DefaultHighlightPainter(Color.YELLOW);
     private JTextArea textArea;
     private JFileChooser fileChooser;
@@ -46,6 +49,18 @@ public class SimpleNotePad extends JFrame {
                 textArea.insert("\n", textArea.getCaretPosition());
             }
         };
+        // Tạo và thêm các nhãn vào JFrame
+        wordCountLabel = new JLabel("Words: 0");
+        charCountLabel = new JLabel("Characters: 0");
+        lineCountLabel = new JLabel("Lines: 0");
+
+        JPanel infoPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        infoPanel.add(wordCountLabel);
+        infoPanel.add(charCountLabel);
+        infoPanel.add(lineCountLabel);
+
+        add(infoPanel, BorderLayout.SOUTH);
+
         textArea.getActionMap().put("enterAction", enterAction);
         textArea.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "enterAction");
 
@@ -244,6 +259,26 @@ public class SimpleNotePad extends JFrame {
         textArea.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
+                updateCounts();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                updateCounts();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                // Do nothing
+            }
+        });
+
+        // Hiển thị JFrame
+        setVisible(true);
+
+        textArea.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
                 removeAllHighlights();
             }
         
@@ -374,6 +409,20 @@ public class SimpleNotePad extends JFrame {
                 JOptionPane.showMessageDialog(this, "Invalid input. Please enter a valid font size.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
+    }
+    private void updateCounts() {
+        String text = textArea.getText();
+        String[] words = text.trim().split("\\s+");
+        int wordCount = words.length;
+
+        int charCount = text.length();
+
+        int lineCount = textArea.getLineCount();
+
+        // Cập nhật các nhãn với thông tin mới
+        wordCountLabel.setText("Words: " + wordCount);
+        charCountLabel.setText("Characters: " + charCount);
+        lineCountLabel.setText("Lines: " + lineCount);
     }
     
     private void chooseFontColor() {
