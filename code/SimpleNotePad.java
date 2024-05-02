@@ -30,7 +30,7 @@ public class SimpleNotePad extends JFrame {
     public SimpleNotePad() {
         setTitle("Simple Notepad");
         setSize(800, 600);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // Dispose instead of exit on close
 
         textArea = new JTextArea();
         JScrollPane scrollPane = new JScrollPane(textArea);
@@ -119,7 +119,12 @@ public class SimpleNotePad extends JFrame {
         fileChooser = new JFileChooser();
         ActionHandler actionHandler = new ActionHandler(textArea, fileChooser);
 
-        newMenuItem.addActionListener(actionHandler);
+        newMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                createNewNotePad(); // Tạo một cửa sổ mới khi nhấp vào "New"
+            }
+        });
         openMenuItem.addActionListener(actionHandler);
         saveMenuItem.addActionListener(actionHandler);
         saveAsMenuItem.addActionListener(actionHandler);
@@ -390,5 +395,9 @@ public class SimpleNotePad extends JFrame {
     
     public static void main(String[] args) {
         new SimpleNotePad();
+    }
+    
+    private void createNewNotePad() {
+        new SimpleNotePad(); // Tạo một cửa sổ SimpleNotePad mới
     }
 }
