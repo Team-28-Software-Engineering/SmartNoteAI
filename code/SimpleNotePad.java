@@ -1,43 +1,98 @@
-import javax.swing.*;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.DefaultHighlighter;
-import javax.swing.text.Highlighter;
-import javax.swing.undo.UndoManager;
-import javax.swing.undo.UndoableEdit;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Stack;
+
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.BorderFactory;
+import javax.swing.JColorChooser;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.KeyStroke;
+import javax.swing.border.Border;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
-
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Stack;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultHighlighter;
+import javax.swing.text.Highlighter;
+import javax.swing.undo.UndoableEdit;
 
 public class SimpleNotePad extends JFrame {
     private JLabel wordCountLabel;
     private JLabel charCountLabel;
     private JLabel lineCountLabel;
-    private Highlighter.HighlightPainter highlightPainter = new DefaultHighlighter.DefaultHighlightPainter(Color.YELLOW);
+    private JTextArea lineNumberArea; // New JTextArea for line numbers
+    private Highlighter.HighlightPainter highlightPainter = new DefaultHighlighter.DefaultHighlightPainter(Color.GREEN);
     private JTextArea textArea;
     private JFileChooser fileChooser;
     private String currentFile;
     private Stack<UndoableEdit> undoStack;
     private Stack<UndoableEdit> redoStack;
-    private int maxUndoRedoSteps = 10; // Limit undo and redo steps to 10
-    
+    private int maxUndoRedoSteps = 100; // Limit undo and redo steps to 100
+    private NoteManager noteManager;
+
+    private void goToLine() {
+        String lineNumberStr = JOptionPane.showInputDialog(this, "Enter line number:");
+        if (lineNumberStr != null && !lineNumberStr.isEmpty()) {
+            try {
+                int lineNumber = Integer.parseInt(lineNumberStr);
+                if (lineNumber > 0 && lineNumber <= textArea.getLineCount()) {
+                    // Bắt đầu từ 0, nên chúng ta trừ đi 1 khi tính toán vị trí dòng
+                    int offset = textArea.getLineStartOffset(lineNumber - 1);
+                    textArea.setCaretPosition(offset);
+                    textArea.requestFocusInWindow(); // Đảm bảo JTextArea nhận focus để cuộn đến dòng đã chọn
+                } else {
+                    JOptionPane.showMessageDialog(this, "Invalid line number", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (NumberFormatException | BadLocationException ex) {
+                JOptionPane.showMessageDialog(this, "Invalid input", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
     public SimpleNotePad() {
+        noteManager = new NoteManager(this);
         setTitle("Simple Notepad");
-        setSize(800, 600);
+        setSize(1000, 1000);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE); // Dispose instead of exit on close
 
         textArea = new JTextArea();
+        Font defaultFont = new Font(textArea.getFont().getName(), Font.PLAIN, 15); // Tạo font mới với size 15
+        textArea.setBackground(Color.GRAY);
+        textArea.setFont(defaultFont); // Đặt font mặc định cho JTextArea
         JScrollPane scrollPane = new JScrollPane(textArea);
         add(scrollPane, BorderLayout.CENTER);
+
+        // Initialize JTextArea for line numbers
+        lineNumberArea = new JTextArea();
+        lineNumberArea.setFont(defaultFont);
+        lineNumberArea.setBackground(Color.GRAY);
+        lineNumberArea.setEditable(false);
+        scrollPane.setRowHeaderView(lineNumberArea); // Set as row header view
+        Border border = BorderFactory.createEmptyBorder(0, 5, 0, 5); // Lề bên trái và phải là 5px
+        lineNumberArea.setBorder(border);
 
         // Disable line wrap
         textArea.setLineWrap(false);
@@ -76,15 +131,19 @@ public class SimpleNotePad extends JFrame {
         JMenuItem exportXMLMenuItem = new JMenuItem("Export as XML");
         JMenuItem exportJSONMenuItem = new JMenuItem("Export as JSON");
         JMenuItem findMenuItem = new JMenuItem("Find");
-
+        JMenuItem openNewNoteMenuItem = new JMenuItem("Open New Note");
 
         // Thêm phím tắt cho các menu item
-        newMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
-        openMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
-        saveMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
-        saveAsMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | KeyEvent.SHIFT_DOWN_MASK));
-        findMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
-        
+        newMenuItem.setAccelerator(
+                KeyStroke.getKeyStroke(KeyEvent.VK_N, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+        openMenuItem.setAccelerator(
+                KeyStroke.getKeyStroke(KeyEvent.VK_O, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+        saveMenuItem.setAccelerator(
+                KeyStroke.getKeyStroke(KeyEvent.VK_S, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+        saveAsMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,
+                Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | KeyEvent.SHIFT_DOWN_MASK));
+        findMenuItem.setAccelerator(
+                KeyStroke.getKeyStroke(KeyEvent.VK_F, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
 
         fileMenu.add(newMenuItem);
         fileMenu.add(openMenuItem);
@@ -96,6 +155,7 @@ public class SimpleNotePad extends JFrame {
         fileMenu.add(exportXMLMenuItem); // Add export XML menu item
         fileMenu.add(exportJSONMenuItem); // Add export JSON menu item
         fileMenu.add(findMenuItem);
+        fileMenu.add(openNewNoteMenuItem);
 
         menuBar.add(fileMenu);
 
@@ -105,17 +165,25 @@ public class SimpleNotePad extends JFrame {
         JMenuItem cutMenuItem = new JMenuItem("Cut");
         JMenuItem copyMenuItem = new JMenuItem("Copy");
         JMenuItem pasteMenuItem = new JMenuItem("Paste");
-        undoMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
-        redoMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
-        cutMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
-        copyMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
-        pasteMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+        JMenuItem goToLineMenuItem = new JMenuItem("Go to Line");
+
+        undoMenuItem.setAccelerator(
+                KeyStroke.getKeyStroke(KeyEvent.VK_Z, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+        redoMenuItem.setAccelerator(
+                KeyStroke.getKeyStroke(KeyEvent.VK_Y, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+        cutMenuItem.setAccelerator(
+                KeyStroke.getKeyStroke(KeyEvent.VK_X, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+        copyMenuItem.setAccelerator(
+                KeyStroke.getKeyStroke(KeyEvent.VK_C, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+        pasteMenuItem.setAccelerator(
+                KeyStroke.getKeyStroke(KeyEvent.VK_V, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
 
         editMenu.add(undoMenuItem);
         editMenu.add(redoMenuItem);
         editMenu.add(cutMenuItem);
         editMenu.add(copyMenuItem);
         editMenu.add(pasteMenuItem);
+        editMenu.add(goToLineMenuItem);
         menuBar.add(editMenu);
 
         setJMenuBar(menuBar);
@@ -143,33 +211,47 @@ public class SimpleNotePad extends JFrame {
         openMenuItem.addActionListener(actionHandler);
         saveMenuItem.addActionListener(actionHandler);
         saveAsMenuItem.addActionListener(actionHandler);
+        goToLineMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                goToLine();
+            }
+        });
         fontMenuItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 chooseFont();
             }
         });
-        
+
         fontSizeMenuItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 chooseFontSize();
             }
         });
-        
+
         fontColorMenuItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 chooseFontColor();
             }
         });
-        
+
         backgroundColorMenuItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 changeBackgroundColor();
             }
         });
+
+        openNewNoteMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                noteManager.openNote();
+            }
+        });
+
         // Enable undo and redo support
         undoStack = new Stack<>();
         redoStack = new Stack<>();
@@ -182,7 +264,7 @@ public class SimpleNotePad extends JFrame {
                 undoStack.push(e.getEdit());
                 redoStack.clear(); // Clear redo stack on new edit
             }
-        });        
+        });
         undoMenuItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -201,24 +283,24 @@ public class SimpleNotePad extends JFrame {
                 textArea.cut();
             }
         });
-        
+
         copyMenuItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 textArea.copy();
             }
         });
-        
+
         pasteMenuItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 textArea.paste();
             }
         });
-        
+
         findMenuItem.addActionListener(new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
                 String searchText = JOptionPane.showInputDialog(SimpleNotePad.this, "Enter text to find:");
                 if (searchText != null && !searchText.isEmpty()) {
                     highlightText(searchText);
@@ -279,14 +361,34 @@ public class SimpleNotePad extends JFrame {
         textArea.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
+                updateLineNumbers();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                updateLineNumbers();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                updateLineNumbers();
+            }
+        });
+
+        // Hiển thị JFrame
+        setVisible(true);
+
+        textArea.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
                 removeAllHighlights();
             }
-        
+
             @Override
             public void removeUpdate(DocumentEvent e) {
                 removeAllHighlights();
             }
-        
+
             @Override
             public void changedUpdate(DocumentEvent e) {
                 // Do nothing
@@ -295,8 +397,6 @@ public class SimpleNotePad extends JFrame {
 
         setVisible(true);
     }
-
-
 
     private void previewFile() {
         int returnVal = fileChooser.showOpenDialog(this);
@@ -322,7 +422,8 @@ public class SimpleNotePad extends JFrame {
         if (tag != null && !tag.isEmpty()) {
             List<File> taggedFiles = findFilesWithTag(tag);
             if (taggedFiles.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "No files found with tag: " + tag, "Tag Files", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this, "No files found with tag: " + tag, "Tag Files",
+                        JOptionPane.INFORMATION_MESSAGE);
             } else {
                 StringBuilder message = new StringBuilder("Files with tag '" + tag + "':\n");
                 for (File file : taggedFiles) {
@@ -343,30 +444,31 @@ public class SimpleNotePad extends JFrame {
         }
         return taggedFiles;
     }
-    
-    
+
     // Phương thức để loại bỏ việc bôi vàng
     private void removeAllHighlights() {
         Highlighter highlighter = textArea.getHighlighter();
         highlighter.removeAllHighlights();
     }
+
     private void highlightText(String searchText) {
-    Highlighter highlighter = textArea.getHighlighter();
-    highlighter.removeAllHighlights(); // Xóa tất cả các nổi bật trước đó
+        Highlighter highlighter = textArea.getHighlighter();
+        highlighter.removeAllHighlights(); // Xóa tất cả các nổi bật trước đó
 
-    String text = textArea.getText();
-    int index = text.indexOf(searchText);
-    while (index >= 0) {
-        try {
-            highlighter.addHighlight(index, index + searchText.length(), highlightPainter);
-            index = text.indexOf(searchText, index + 1);
-        } catch (BadLocationException e) {
-            e.printStackTrace();
+        String text = textArea.getText();
+        int index = text.indexOf(searchText);
+        while (index >= 0) {
+            try {
+                highlighter.addHighlight(index, index + searchText.length(), highlightPainter);
+                index = text.indexOf(searchText, index + 1);
+            } catch (BadLocationException e) {
+                e.printStackTrace();
+            }
         }
+
+        textArea.requestFocusInWindow(); // Đảm bảo JTextArea được focus để cuộn đến vị trí của văn bản nổi bật đầu tiên
     }
 
-    textArea.requestFocusInWindow(); // Đảm bảo JTextArea được focus để cuộn đến vị trí của văn bản nổi bật đầu tiên
-    }
     private void undo() {
         if (!undoStack.isEmpty()) {
             UndoableEdit edit = undoStack.pop();
@@ -382,6 +484,7 @@ public class SimpleNotePad extends JFrame {
             undoStack.push(edit);
         }
     }
+
     private void changeBackgroundColor() {
         Color bgColor = JColorChooser.showDialog(this, "Choose Background Color", textArea.getBackground());
         if (bgColor != null) {
@@ -392,13 +495,14 @@ public class SimpleNotePad extends JFrame {
             }
         }
     }
+
     private void chooseFont() {
         Font selectedFont = JFontChooser.showDialog(this, "Choose Font", textArea.getFont());
         if (selectedFont != null) {
             textArea.setFont(selectedFont);
         }
     }
-    
+
     private void chooseFontSize() {
         String input = JOptionPane.showInputDialog(this, "Enter Font Size:");
         if (input != null && !input.isEmpty()) {
@@ -406,10 +510,12 @@ public class SimpleNotePad extends JFrame {
                 int size = Integer.parseInt(input);
                 textArea.setFont(textArea.getFont().deriveFont((float) size));
             } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(this, "Invalid input. Please enter a valid font size.", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Invalid input. Please enter a valid font size.", "Error",
+                        JOptionPane.ERROR_MESSAGE);
             }
         }
     }
+
     private void updateCounts() {
         String text = textArea.getText();
         String[] words = text.trim().split("\\s+");
@@ -424,28 +530,39 @@ public class SimpleNotePad extends JFrame {
         charCountLabel.setText("Characters: " + charCount);
         lineCountLabel.setText("Lines: " + lineCount);
     }
-    
+
+    private void updateLineNumbers() {
+        int totalLines = textArea.getLineCount();
+        StringBuilder sb = new StringBuilder();
+        for (int i = 1; i <= totalLines; i++) {
+            sb.append(i).append("\n");
+        }
+        lineNumberArea.setText(sb.toString());
+    }
+
     private void chooseFontColor() {
         Color fontColor = JColorChooser.showDialog(this, "Choose Font Color", textArea.getForeground());
         if (fontColor != null) {
             textArea.setForeground(fontColor);
         }
     }
+
     private void exportAsHTML() {
         HTMLExporter.export(textArea);
     }
-    
+
     private void exportAsXML() {
         XMLExporter.export(textArea);
     }
+
     private void exportAsJSON() {
         JSONExporter.export(textArea);
     }
-    
+
     public static void main(String[] args) {
         new SimpleNotePad();
     }
-    
+
     private void createNewNotePad() {
         new SimpleNotePad(); // Tạo một cửa sổ SimpleNotePad mới
     }
