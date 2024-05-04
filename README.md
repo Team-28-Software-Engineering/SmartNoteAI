@@ -1,5 +1,5 @@
 SimpleNotepad
-SimpleNotepad là một ứng dụng soạn thảo văn bản đơn giản được viết bằng Java Swing.
+SimpleNotepad là một ứng dụng soạn thảo văn bản đơn giản được viết bằng Java.
 
 Tính năng
 Soạn Thảo Văn Bản: Cho phép người dùng tạo và chỉnh sửa văn bản.
