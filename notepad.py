@@ -193,6 +193,16 @@ class Ui_MainWindow(object):
 
 		self.retranslateUi(MainWindow)
 		QtCore.QMetaObject.connectSlotsByName(MainWindow)
+		#########
+		self.textEdit.textChanged.connect(self.update_statistics)
+		self.wordCountLabel = QtWidgets.QLabel("Words: 0")
+		self.characterCountLabel = QtWidgets.QLabel("Characters: 0")
+		self.lineCountLabel = QtWidgets.QLabel("Lines: 0")
+
+		MainWindow.statusBar().addPermanentWidget(self.wordCountLabel)
+		MainWindow.statusBar().addPermanentWidget(self.characterCountLabel)
+		MainWindow.statusBar().addPermanentWidget(self.lineCountLabel)
+		#########
 
 	def retranslateUi(self, MainWindow):
 		_translate = QtCore.QCoreApplication.translate
@@ -379,6 +389,19 @@ class Ui_MainWindow(object):
 		self.toolBar.setStyleSheet("")
 		for action in self.toolBar.actions():
 			action.setStyleSheet("")
+	def update_statistics(self):
+		# Lấy văn bản từ QTextEdit
+		text = self.textEdit.toPlainText()
+
+		# Thống kê số từ, ký tự và dòng
+		word_count = len(text.split())
+		character_count = len(text)
+		line_count = text.count('\n') + 1
+
+		# Hiển thị thông tin thống kê trên thanh trạng thái
+		self.wordCountLabel.setText("Words: " + str(word_count))
+		self.characterCountLabel.setText("Characters: " + str(character_count))
+		self.lineCountLabel.setText("Lines: " + str(line_count))
 
 
 import sys
