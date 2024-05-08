@@ -20,6 +20,7 @@ class Ui_MainWindow(object):
 
 
 	def setupUi(self, MainWindow):
+		self.split_state = False
 		self.word_count_checked = True
 		self.char_count_checked = True
 		self.line_count_checked = True
@@ -149,6 +150,13 @@ class Ui_MainWindow(object):
 		self.actionStatistics.setIcon(icon16)
 		self.actionStatistics.setObjectName("actionStatistics")
 		#################################
+		self.splitAction = QtWidgets.QAction(MainWindow)
+		icon17 = QtGui.QIcon()
+		icon17.addPixmap(QtGui.QPixmap("res/icons/split.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+		self.splitAction.setIcon(icon17)
+		self.splitAction.setObjectName("splitAction")
+		self.toolBar.addAction(self.splitAction)
+		#################################
 		self.menuEdit.addAction(self.actionSearch)
 		self.toolBar.addAction(self.actionSearch)
 		self.menuFile.addAction(self.actionOpen)
@@ -259,6 +267,7 @@ class Ui_MainWindow(object):
 		self.actionUnderline.triggered.connect(self.toggle_underline)
 		self.actionAbout_Notepad.triggered.connect(self.aboutapp)
 		self.actionStatistics.triggered.connect(self.show_statistics_dialog)
+		self.splitAction.triggered.connect(self.split_text_edit)
 
 		
 
@@ -463,7 +472,38 @@ class Ui_MainWindow(object):
 			else:
 				self.lineCountLabel.hide()
 
+	def split_text_edit(self):
+		if not self.split_state:  # Nếu đang ở trạng thái chưa chia đôi
+			# Tạo một QSplitter mới
+			self.splitter = QSplitter(Qt.Horizontal)  # Sử dụng Qt.Vertical nếu muốn chia theo chiều dọc
+			
+			# Di chuyển textEdit hiện tại vào QSplitter
+			self.horizontalLayout.removeWidget(self.textEdit)
+			self.splitter.addWidget(self.textEdit)
 
+			# Tạo một QTextEdit mới
+			self.textEdit2 = QtWidgets.QTextEdit(self.centralwidget)
+			self.textEdit2.setObjectName("textEdit2")
+			self.splitter.addWidget(self.textEdit2)
+
+			# Thêm QSplitter vào horizontalLayout
+			self.horizontalLayout.addWidget(self.splitter)
+
+			self.split_state = True  # Cập nhật trạng thái đã chia đôi
+
+		else:  # Nếu đang ở trạng thái đã chia đôi
+			# Xóa QTextEdit thứ hai và QSplitter khỏi horizontalLayout
+			self.horizontalLayout.removeWidget(self.textEdit2)
+			self.horizontalLayout.removeWidget(self.splitter)
+
+			# Loại bỏ các widget từ QSplitter để tránh bị rò rỉ bộ nhớ
+			self.splitter.deleteLater()
+			self.textEdit2.deleteLater()
+
+			# Thêm lại textEdit vào horizontalLayout
+			self.horizontalLayout.addWidget(self.textEdit)
+
+			self.split_state = False  # Cập nhật trạng thái chưa chia đôi
 
 import sys
 from PyQt5.QtCore import *
