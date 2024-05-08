@@ -9,52 +9,69 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QFileDialog, QMessageBox
 from about import Ui_Dialog 
+from PyQt5.QtGui import QKeySequence
+from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QMessageBox, QTextEdit, QInputDialog
+from PyQt5.QtGui import QIcon, QTextCursor, QTextCharFormat, QColor
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtGui import QTextDocument, QTextImageFormat
+from PyQt5.QtGui import QTextImageFormat, QTextCursor, QTextLength
+from PyQt5.QtWidgets import QLabel
+from PyQt5.QtGui import QPixmap
+from PyQt5.QtWidgets import QLabel, QVBoxLayout, QDialog, QSlider, QPushButton
 
-from PyQt5.QtWidgets import QTextEdit
-from PyQt5.QtGui import QTextCursor, QColor
+class ImageSizeDialog(QDialog):
+    def __init__(self, parent=None):
+        super(ImageSizeDialog, self).__init__(parent)
+        self.setWindowTitle("Resize Image")
+        self.layout = QVBoxLayout()
 
-class HighlightTextEdit(QTextEdit):
-	def __init__(self, parent=None):
-		super().__init__(parent)
-		self.setStyleSheet("background-color: white;")  # Set default background color
-		self.cursorPositionChanged.connect(self.highlightCurrentLine)
+        # Tạo một QLabel để hiển thị kích thước mới của ảnh
+        self.size_label = QLabel("Size: 100%")
+        self.layout.addWidget(self.size_label)
 
-	def highlightCurrentLine(self):
-		extraSelections = []
+        # Tạo một QSlider để chọn kích thước mới của ảnh (từ 50% đến 200%)
+        self.slider = QSlider(Qt.Horizontal)
+        self.slider.setMinimum(150)
+        self.slider.setMaximum(200)
+        self.slider.setValue(150)
+        self.slider.setTickPosition(QSlider.TicksBelow)
+        self.slider.setTickInterval(25)
+        self.slider.valueChanged.connect(self.update_size_label)
+        self.layout.addWidget(self.slider)
 
-		# Remove previous selections
-		self.setExtraSelections([])
+        # Tạo một nút OK để chấp nhận kích thước mới
+        self.ok_button = QPushButton("OK")
+        self.ok_button.clicked.connect(self.accept)
+        self.layout.addWidget(self.ok_button)
 
-		# Get current line number
-		cursor = self.textCursor()
-		cursor.movePosition(QTextCursor.StartOfLine)
-		cursor.select(QTextCursor.LineUnderCursor)
-		line = cursor.selectedText()
+        self.setLayout(self.layout)
 
-		# Create a selection with a different background color for the current line
-		selection = QTextEdit.ExtraSelection()
-		selection.format.setBackground(QColor("#FFFF99"))  # Yellow color
-		selection.format.setProperty(QTextFormat.FullWidthSelection, True)
-		selection.cursor = cursor
-		extraSelections.append(selection)
+    def update_size_label(self):
+        size = self.slider.value()
+        self.size_label.setText("Size: {}%".format(size))
 
-		# Apply the selection
-		self.setExtraSelections(extraSelections)
+    def get_size(self):
+        return self.slider.value()
+
 
 class Ui_MainWindow(object):
 
 
 	def setupUi(self, MainWindow):
+		self.split_state = False
+		self.word_count_checked = True
+		self.char_count_checked = True
+		self.line_count_checked = True
+		self.mode = 'light'
 		MainWindow.setObjectName("MainWindow")
-		MainWindow.resize(594, 433)
+		MainWindow.resize(800, 600)
 		MainWindow.setWindowIcon(QtGui.QIcon('res/icons/text-editor2.png'))
 		self.centralwidget = QtWidgets.QWidget(MainWindow)
 		self.centralwidget.setObjectName("centralwidget")
 		self.horizontalLayout = QtWidgets.QHBoxLayout(self.centralwidget)
 		self.horizontalLayout.setObjectName("horizontalLayout")
 		self.textEdit = QtWidgets.QTextEdit(self.centralwidget)
-		self.textEdit.setObjectName("textEdit")
-		self.textEdit = HighlightTextEdit(self.centralwidget)
 		self.textEdit.setObjectName("textEdit")
 		self.horizontalLayout.addWidget(self.textEdit)
 		MainWindow.setCentralWidget(self.centralwidget)
@@ -129,7 +146,65 @@ class Ui_MainWindow(object):
 		icon10.addPixmap(QtGui.QPixmap("res/icons/exit.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
 		self.actionExit.setIcon(icon10)
 		self.actionExit.setObjectName("actionExit")
+		self.actionSearch = QtWidgets.QAction(MainWindow)
+		icon11 = QtGui.QIcon()
+		icon11.addPixmap(QtGui.QPixmap("res/icons/search.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+		self.actionSearch.setIcon(icon11)
+		self.actionSearch.setObjectName("actionSearch")
+		self.actionMode = QtWidgets.QAction(MainWindow)
+		icon12 = QtGui.QIcon()
+		icon12.addPixmap(QtGui.QPixmap("res/icons/mode.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+		self.actionMode.setIcon(icon12)
+		self.actionMode.setObjectName("actionMode")
+		self.menuView = QtWidgets.QMenu(self.menubar)
+		self.menuView.setObjectName("menuView")
+		MainWindow.setMenuBar(self.menubar)
+		self.actionBold = QAction(MainWindow)
 		self.menuFile.addAction(self.actionNew)
+		self.toolBar.addAction(self.actionNew)
+		icon13 = QtGui.QIcon()
+		icon13.addPixmap(QtGui.QPixmap("res/icons/bold.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+		self.actionBold.setIcon(icon13)
+		self.actionBold.setObjectName("actionBold")
+		self.toolBar.addAction(self.actionBold)
+		self.actionBold.setCheckable(True)
+		self.actionItalic = QAction(MainWindow)
+		icon14 = QtGui.QIcon()
+		icon14.addPixmap(QtGui.QPixmap("res/icons/italic.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+		self.actionItalic.setIcon(icon14)
+		self.actionItalic.setObjectName("actionItalic")
+		self.toolBar.addAction(self.actionItalic)
+		self.actionItalic.setCheckable(True)
+		self.actionUnderline = QAction(MainWindow)
+		icon15 = QtGui.QIcon()
+		icon15.addPixmap(QtGui.QPixmap("res/icons/underline.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+		self.actionUnderline.setIcon(icon15)
+		self.actionUnderline.setObjectName("actionUnderline")
+		self.toolBar.addAction(self.actionUnderline)
+		self.actionUnderline.setCheckable(True)
+		#################################
+		self.actionStatistics = QtWidgets.QAction(MainWindow)
+		icon16 = QtGui.QIcon()
+		icon16.addPixmap(QtGui.QPixmap("res/icons/stat.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+		self.actionStatistics.setIcon(icon16)
+		self.actionStatistics.setObjectName("actionStatistics")
+		#################################
+		self.splitAction = QtWidgets.QAction(MainWindow)
+		icon17 = QtGui.QIcon()
+		icon17.addPixmap(QtGui.QPixmap("res/icons/split.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+		self.splitAction.setIcon(icon17)
+		self.splitAction.setObjectName("splitAction")
+		self.toolBar.addAction(self.splitAction)
+		#################################
+		self.actionInsertImage = QtWidgets.QAction(MainWindow)
+		icon18 = QtGui.QIcon()
+		icon18.addPixmap(QtGui.QPixmap("res/icons/image.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+		self.actionInsertImage.setIcon(icon18)
+		self.actionInsertImage.setObjectName("actionInsertImage")
+		self.toolBar.addAction(self.actionInsertImage)
+		#################################
+		self.menuEdit.addAction(self.actionSearch)
+		self.toolBar.addAction(self.actionSearch)
 		self.menuFile.addAction(self.actionOpen)
 		self.menuFile.addSeparator()
 		self.menuFile.addAction(self.actionSave)
@@ -145,7 +220,6 @@ class Ui_MainWindow(object):
 		self.menubar.addAction(self.menuFile.menuAction())
 		self.menubar.addAction(self.menuEdit.menuAction())
 		self.menubar.addAction(self.menuAbout.menuAction())
-		self.toolBar.addAction(self.actionNew)
 		self.toolBar.addAction(self.actionOpen)
 		self.toolBar.addAction(self.actionSave)
 		self.toolBar.addAction(self.actionSave_as)
@@ -158,10 +232,46 @@ class Ui_MainWindow(object):
 		self.toolBar.addAction(self.actionUndo)
 		self.toolBar.addSeparator()
 		self.toolBar.addAction(self.actionAbout_Notepad)
+		self.toolBar.addSeparator()
+		spacer = QtWidgets.QWidget()
+		spacer.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+		self.toolBar.addWidget(spacer)
+		self.toolBar.addAction(self.actionStatistics)
+		self.toolBar.addSeparator()
 		self.toolBar.addAction(self.actionExit)
+		self.toolBar.addAction(self.actionMode)
+		
+		
+
+		self.actionNew.setShortcut("Ctrl+N")
+		self.actionOpen.setShortcut("Ctrl+O")
+		self.actionSave.setShortcut("Ctrl+S")
+		self.actionSave_as.setShortcut("Ctrl+Shift+S")
+		self.actionCut.setShortcut("Ctrl+X")
+		self.actionCopy.setShortcut("Ctrl+C")
+		self.actionPaste.setShortcut("Ctrl+V")
+		self.actionUndo.setShortcut("Ctrl+Z")
+		self.actionRedo.setShortcut("Ctrl+Y")
+		self.actionSearch.setShortcut("Ctrl+F")
+		self.actionExit.setShortcut("Ctrl+Q")  
 
 		self.retranslateUi(MainWindow)
 		QtCore.QMetaObject.connectSlotsByName(MainWindow)
+		#########
+		self.textEdit.textChanged.connect(self.update_statistics)
+		self.wordCountLabel = QtWidgets.QLabel("Words: 0")
+		self.characterCountLabel = QtWidgets.QLabel("Characters: 0")
+		self.lineCountLabel = QtWidgets.QLabel("Lines: 0")
+
+		MainWindow.statusBar().addPermanentWidget(self.wordCountLabel)
+		MainWindow.statusBar().addPermanentWidget(self.characterCountLabel)
+		MainWindow.statusBar().addPermanentWidget(self.lineCountLabel)
+		#########
+		self.textEdit.setAcceptDrops(True)
+		self.textEdit.dragEnterEvent = self.drag_enter_event
+		self.textEdit.dropEvent = self.drop_event
+		#########
+		#########
 
 	def retranslateUi(self, MainWindow):
 		_translate = QtCore.QCoreApplication.translate
@@ -180,10 +290,12 @@ class Ui_MainWindow(object):
 		self.actionRedo.setText(_translate("MainWindow", "Redo"))
 		self.actionUndo.setText(_translate("MainWindow", "Undo"))
 		self.actionAbout_Notepad.setText(_translate("MainWindow", "About Notepad"))
+		self.actionSearch.setText(_translate("MainWindow", "Search"))
 		self.actionExit.setText(_translate("MainWindow", "Exit"))
 
 		self.filepath = ''
-
+		self.actionSearch.triggered.connect(self.search_text)
+		
 		self.actionNew.triggered.connect(self.textEdit.clear)
 		self.actionOpen.triggered.connect(self.openfile)
 
@@ -200,11 +312,54 @@ class Ui_MainWindow(object):
 		self.actionUndo.triggered.connect(self.textEdit.undo)
 		self.actionRedo.triggered.connect(self.textEdit.redo)
 
-
+		self.actionMode.triggered.connect(self.toggle_mode)
+		self.actionBold.triggered.connect(self.toggle_bold)
+		self.actionItalic.triggered.connect(self.toggle_italic)
+		self.actionUnderline.triggered.connect(self.toggle_underline)
 		self.actionAbout_Notepad.triggered.connect(self.aboutapp)
+		self.actionStatistics.triggered.connect(self.show_statistics_dialog)
+		self.splitAction.triggered.connect(self.split_text_edit)
+		self.actionInsertImage.triggered.connect(self.insert_image)
 
 		
 
+		
+		self.actionMode.setCheckable(True)  # Cho phép nút chuyển đổi giữa hai trạng thái
+	def toggle_bold(self):
+		if self.actionBold.isChecked():
+			self.textEdit.setFontWeight(QtGui.QFont.Bold)
+		else:
+			self.textEdit.setFontWeight(QtGui.QFont.Normal)
+	def toggle_italic(self):
+		# Khi tính năng in nghiêng chữ được kích hoạt hoặc tắt
+		if self.actionItalic.isChecked():
+			self.set_text_italic(True)
+		else:
+			self.set_text_italic(False)
+
+	def set_text_italic(self, italic):
+		# Đặt văn bản in nghiêng hoặc không in nghiêng
+		font = self.textEdit.currentFont()
+		font.setItalic(italic)
+		self.textEdit.setCurrentFont(font)
+
+	def toggle_underline(self):
+		# Khi tính năng gạch chân được kích hoạt hoặc tắt
+		if self.actionUnderline.isChecked():
+			self.set_text_underline(True)
+		else:
+			self.set_text_underline(False)
+
+	def set_text_underline(self, underline):
+		# Đặt văn bản có gạch chân hoặc không có gạch chân
+		format = self.textEdit.currentCharFormat()
+		format.setFontUnderline(underline)
+		self.textEdit.setCurrentCharFormat(format)
+	def toggle_mode(self):
+		if self.actionMode.isChecked():  # Nếu đang ở chế độ tối
+			self.setStyleSheet("background-color: #222; color: #FFF;")
+		else:  # Nếu đang ở chế độ sáng
+			self.setStyleSheet("")  # Đặt lại stylesheet về mặc định
 
 
 	def openfile(self):
@@ -220,8 +375,21 @@ class Ui_MainWindow(object):
 			filedata = f.read()
 			self.textEdit.setText(filedata)
 			f.close()
+	def remove_highlight(self):
+		cursor = self.ui.textEdit.textCursor()
+		cursor.clearSelection()
+		format = QtGui.QTextCharFormat()
+		cursor.setCharFormat(format)
 
-	
+	def search_text(self):
+		search_text, ok = QtWidgets.QInputDialog.getText(self.centralwidget, 'Search Text', 'Enter text to search:')
+		if ok and search_text:
+			cursor = self.textEdit.textCursor()
+			cursor.movePosition(QtGui.QTextCursor.Start)
+			cursor = self.textEdit.document().find(search_text, cursor)
+			if not cursor.isNull():
+				self.textEdit.setTextCursor(cursor)
+				self.textEdit.ensureCursorVisible()
 
 	def savefile(self):
 
@@ -268,6 +436,162 @@ class Ui_MainWindow(object):
 		self.ui.setupUi(self.window)
 		self.window.show()
 
+	def toggle_mode(self):
+		if self.mode == 'light':
+			self.mode = 'dark'
+			self.set_dark_mode()
+		else:
+			self.mode = 'light'
+			self.set_light_mode()
+
+	def set_dark_mode(self):
+		self.centralwidget.setStyleSheet("background-color: #333; color: #FFF;")
+		self.textEdit.setStyleSheet("background-color: #333; color: #FFF;")
+		self.menubar.setStyleSheet("background-color: #333; color: #FFF;")
+		self.statusbar.setStyleSheet("background-color: #333; color: #FFF;")
+		self.toolBar.setStyleSheet("background-color: #333;")
+		for action in self.toolBar.actions():
+			action.setStyleSheet("color: #FFF;")
+
+
+	def set_light_mode(self):
+		self.centralwidget.setStyleSheet("")
+		self.textEdit.setStyleSheet("")
+		self.menubar.setStyleSheet("")
+		self.statusbar.setStyleSheet("")
+		self.toolBar.setStyleSheet("")
+		for action in self.toolBar.actions():
+			action.setStyleSheet("")
+	def update_statistics(self):
+		# Lấy văn bản từ QTextEdit
+		text = self.textEdit.toPlainText()
+
+		# Thống kê số từ, ký tự và dòng
+		word_count = len(text.split())
+		character_count = len(text)
+		line_count = text.count('\n') + 1
+
+		# Hiển thị thông tin thống kê trên thanh trạng thái
+		self.wordCountLabel.setText("Words: " + str(word_count))
+		self.characterCountLabel.setText("Characters: " + str(character_count))
+		self.lineCountLabel.setText("Lines: " + str(line_count))
+	def show_statistics_dialog(self):
+		dialog = QtWidgets.QDialog()
+		dialog.setWindowTitle("Statistics Options")
+
+		layout = QtWidgets.QVBoxLayout()
+
+		word_count_check = QtWidgets.QCheckBox("Word Count")
+		char_count_check = QtWidgets.QCheckBox("Character Count")
+		line_count_check = QtWidgets.QCheckBox("Line Count")
+
+		# Thiết lập trạng thái ban đầu của các checkbox
+		word_count_check.setChecked(self.word_count_checked)
+		char_count_check.setChecked(self.char_count_checked)
+		line_count_check.setChecked(self.line_count_checked)
+
+		layout.addWidget(word_count_check)
+		layout.addWidget(char_count_check)
+		layout.addWidget(line_count_check)
+
+		button_box = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
+		button_box.accepted.connect(dialog.accept)
+		button_box.rejected.connect(dialog.reject)
+
+		layout.addWidget(button_box)
+
+		dialog.setLayout(layout)
+
+		if dialog.exec_():
+			# Lưu lại trạng thái của các checkbox
+			self.word_count_checked = word_count_check.isChecked()
+			self.char_count_checked = char_count_check.isChecked()
+			self.line_count_checked = line_count_check.isChecked()
+
+			# Hiển thị hoặc ẩn các phần thống kê tương ứng
+			if self.word_count_checked:
+				self.wordCountLabel.show()
+			else:
+				self.wordCountLabel.hide()
+
+			if self.char_count_checked:
+				self.characterCountLabel.show()
+			else:
+				self.characterCountLabel.hide()
+
+			if self.line_count_checked:
+				self.lineCountLabel.show()
+			else:
+				self.lineCountLabel.hide()
+
+	def split_text_edit(self):
+		if not self.split_state:  # Nếu đang ở trạng thái chưa chia đôi
+			# Tạo một QSplitter mới
+			self.splitter = QSplitter(Qt.Horizontal)  # Sử dụng Qt.Vertical nếu muốn chia theo chiều dọc
+			
+			# Di chuyển textEdit hiện tại vào QSplitter
+			self.horizontalLayout.removeWidget(self.textEdit)
+			self.splitter.addWidget(self.textEdit)
+
+			# Tạo một QTextEdit mới
+			self.textEdit2 = QtWidgets.QTextEdit(self.centralwidget)
+			self.textEdit2.setObjectName("textEdit2")
+			self.splitter.addWidget(self.textEdit2)
+
+			# Thêm QSplitter vào horizontalLayout
+			self.horizontalLayout.addWidget(self.splitter)
+
+			self.split_state = True  # Cập nhật trạng thái đã chia đôi
+
+		else:  # Nếu đang ở trạng thái đã chia đôi
+			# Xóa QTextEdit thứ hai và QSplitter khỏi horizontalLayout
+			self.horizontalLayout.removeWidget(self.textEdit2)
+			self.horizontalLayout.removeWidget(self.splitter)
+
+			# Loại bỏ các widget từ QSplitter để tránh bị rò rỉ bộ nhớ
+			self.splitter.deleteLater()
+			self.textEdit2.deleteLater()
+
+			# Thêm lại textEdit vào horizontalLayout
+			self.horizontalLayout.addWidget(self.textEdit)
+
+			self.split_state = False  # Cập nhật trạng thái chưa chia đôi
+	def insert_image(self):
+		# Mở hộp thoại để chọn tệp ảnh
+		filename, _ = QFileDialog.getOpenFileName(None, "Select Image", "", "Image Files (*.png *.jpg *.bmp *.gif)")
+
+		# Kiểm tra nếu người dùng đã chọn tệp
+		if filename:
+			# Hiển thị hộp thoại để chọn kích thước ảnh
+			size_dialog = ImageSizeDialog()
+			if size_dialog.exec_():
+				size = size_dialog.get_size()
+
+				# Tạo đối tượng QTextImageFormat từ tệp ảnh và kích thước
+				image_format = QTextImageFormat()
+				image_format.setName(filename)
+				image_format.setWidth(size)
+
+				# Chèn ảnh vào vị trí hiện tại của con trỏ
+				cursor = self.textEdit.textCursor()
+				cursor.insertImage(image_format)
+	def drag_enter_event(self, event):
+		if event.mimeData().hasUrls():
+			event.acceptProposedAction()
+
+	def drop_event(self, event):
+		mime_data = event.mimeData()
+		if mime_data.hasUrls():
+			urls = mime_data.urls()
+			for url in urls:
+				if url.isLocalFile():
+					file_path = url.toLocalFile()
+					if file_path.lower().endswith(('.png', '.jpg', '.bmp', '.gif')):
+						self.insert_image(file_path)
+
+
+
+
 import sys
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -276,19 +600,46 @@ from notepad import Ui_MainWindow
 
 
 class MainScreen(QMainWindow):
+    def __init__(self):
+        super(MainScreen, self).__init__()
+        self.ui = Ui_MainWindow()
+        self.ui.setupUi(self)
+        self.ui.textEdit.setAcceptDrops(True)
+        self.ui.textEdit.dragEnterEvent = self.drag_enter_event
+        self.ui.textEdit.dropEvent = self.drop_event
+
+    def drag_enter_event(self, event):
+        if event.mimeData().hasUrls():
+            event.acceptProposedAction()
+
+    def drop_event(self, event):
+        mime_data = event.mimeData()
+        if mime_data.hasUrls():
+            urls = mime_data.urls()
+            for url in urls:
+                if url.isLocalFile():
+                    file_path = url.toLocalFile()
+                    if file_path.lower().endswith(('.png', '.jpg', '.bmp', '.gif')):
+                        self.insert_image(file_path)
+
+    def insert_image(self, file_path):
+        # Hiển thị hộp thoại để chọn kích thước ảnh
+        size_dialog = ImageSizeDialog()
+        if size_dialog.exec_():
+            size = size_dialog.get_size()
+
+            # Tạo đối tượng QTextImageFormat từ tệp ảnh và kích thước
+            image_format = QTextImageFormat()
+            image_format.setName(file_path)
+            image_format.setWidth(size)
+
+            # Chèn ảnh vào vị trí hiện tại của con trỏ
+            cursor = self.ui.textEdit.textCursor()
+            cursor.insertImage(image_format)
 	
-	def __init__(self):
-		super(MainScreen, self).__init__()
-		self.ui = Ui_MainWindow()
-		self.ui.setupUi(self)
+
 		
 app = QApplication(sys.argv)
 myapp = MainScreen()
 myapp.show()
 sys.exit(app.exec_())
-
-
-
-
-
-
