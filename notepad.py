@@ -13,7 +13,46 @@ from PyQt5.QtGui import QKeySequence
 from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QMessageBox, QTextEdit, QInputDialog
 from PyQt5.QtGui import QIcon, QTextCursor, QTextCharFormat, QColor
 from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtGui import QTextDocument, QTextImageFormat
+from PyQt5.QtGui import QTextImageFormat, QTextCursor, QTextLength
+from PyQt5.QtWidgets import QLabel
+from PyQt5.QtGui import QPixmap
+from PyQt5.QtWidgets import QLabel, QVBoxLayout, QDialog, QSlider, QPushButton
 
+class ImageSizeDialog(QDialog):
+    def __init__(self, parent=None):
+        super(ImageSizeDialog, self).__init__(parent)
+        self.setWindowTitle("Resize Image")
+        self.layout = QVBoxLayout()
+
+        # Tạo một QLabel để hiển thị kích thước mới của ảnh
+        self.size_label = QLabel("Size: 100%")
+        self.layout.addWidget(self.size_label)
+
+        # Tạo một QSlider để chọn kích thước mới của ảnh (từ 50% đến 200%)
+        self.slider = QSlider(Qt.Horizontal)
+        self.slider.setMinimum(150)
+        self.slider.setMaximum(200)
+        self.slider.setValue(150)
+        self.slider.setTickPosition(QSlider.TicksBelow)
+        self.slider.setTickInterval(25)
+        self.slider.valueChanged.connect(self.update_size_label)
+        self.layout.addWidget(self.slider)
+
+        # Tạo một nút OK để chấp nhận kích thước mới
+        self.ok_button = QPushButton("OK")
+        self.ok_button.clicked.connect(self.accept)
+        self.layout.addWidget(self.ok_button)
+
+        self.setLayout(self.layout)
+
+    def update_size_label(self):
+        size = self.slider.value()
+        self.size_label.setText("Size: {}%".format(size))
+
+    def get_size(self):
+        return self.slider.value()
 
 
 class Ui_MainWindow(object):
@@ -157,6 +196,13 @@ class Ui_MainWindow(object):
 		self.splitAction.setObjectName("splitAction")
 		self.toolBar.addAction(self.splitAction)
 		#################################
+		self.actionInsertImage = QtWidgets.QAction(MainWindow)
+		icon18 = QtGui.QIcon()
+		icon18.addPixmap(QtGui.QPixmap("res/icons/image.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+		self.actionInsertImage.setIcon(icon18)
+		self.actionInsertImage.setObjectName("actionInsertImage")
+		self.toolBar.addAction(self.actionInsertImage)
+		#################################
 		self.menuEdit.addAction(self.actionSearch)
 		self.toolBar.addAction(self.actionSearch)
 		self.menuFile.addAction(self.actionOpen)
@@ -221,6 +267,11 @@ class Ui_MainWindow(object):
 		MainWindow.statusBar().addPermanentWidget(self.characterCountLabel)
 		MainWindow.statusBar().addPermanentWidget(self.lineCountLabel)
 		#########
+		self.textEdit.setAcceptDrops(True)
+		self.textEdit.dragEnterEvent = self.drag_enter_event
+		self.textEdit.dropEvent = self.drop_event
+		#########
+		#########
 
 	def retranslateUi(self, MainWindow):
 		_translate = QtCore.QCoreApplication.translate
@@ -268,6 +319,7 @@ class Ui_MainWindow(object):
 		self.actionAbout_Notepad.triggered.connect(self.aboutapp)
 		self.actionStatistics.triggered.connect(self.show_statistics_dialog)
 		self.splitAction.triggered.connect(self.split_text_edit)
+		self.actionInsertImage.triggered.connect(self.insert_image)
 
 		
 
@@ -504,6 +556,41 @@ class Ui_MainWindow(object):
 			self.horizontalLayout.addWidget(self.textEdit)
 
 			self.split_state = False  # Cập nhật trạng thái chưa chia đôi
+	def insert_image(self):
+		# Mở hộp thoại để chọn tệp ảnh
+		filename, _ = QFileDialog.getOpenFileName(None, "Select Image", "", "Image Files (*.png *.jpg *.bmp *.gif)")
+
+		# Kiểm tra nếu người dùng đã chọn tệp
+		if filename:
+			# Hiển thị hộp thoại để chọn kích thước ảnh
+			size_dialog = ImageSizeDialog()
+			if size_dialog.exec_():
+				size = size_dialog.get_size()
+
+				# Tạo đối tượng QTextImageFormat từ tệp ảnh và kích thước
+				image_format = QTextImageFormat()
+				image_format.setName(filename)
+				image_format.setWidth(size)
+
+				# Chèn ảnh vào vị trí hiện tại của con trỏ
+				cursor = self.textEdit.textCursor()
+				cursor.insertImage(image_format)
+	def drag_enter_event(self, event):
+		if event.mimeData().hasUrls():
+			event.acceptProposedAction()
+
+	def drop_event(self, event):
+		mime_data = event.mimeData()
+		if mime_data.hasUrls():
+			urls = mime_data.urls()
+			for url in urls:
+				if url.isLocalFile():
+					file_path = url.toLocalFile()
+					if file_path.lower().endswith(('.png', '.jpg', '.bmp', '.gif')):
+						self.insert_image(file_path)
+
+
+
 
 import sys
 from PyQt5.QtCore import *
@@ -513,11 +600,44 @@ from notepad import Ui_MainWindow
 
 
 class MainScreen(QMainWindow):
+    def __init__(self):
+        super(MainScreen, self).__init__()
+        self.ui = Ui_MainWindow()
+        self.ui.setupUi(self)
+        self.ui.textEdit.setAcceptDrops(True)
+        self.ui.textEdit.dragEnterEvent = self.drag_enter_event
+        self.ui.textEdit.dropEvent = self.drop_event
+
+    def drag_enter_event(self, event):
+        if event.mimeData().hasUrls():
+            event.acceptProposedAction()
+
+    def drop_event(self, event):
+        mime_data = event.mimeData()
+        if mime_data.hasUrls():
+            urls = mime_data.urls()
+            for url in urls:
+                if url.isLocalFile():
+                    file_path = url.toLocalFile()
+                    if file_path.lower().endswith(('.png', '.jpg', '.bmp', '.gif')):
+                        self.insert_image(file_path)
+
+    def insert_image(self, file_path):
+        # Hiển thị hộp thoại để chọn kích thước ảnh
+        size_dialog = ImageSizeDialog()
+        if size_dialog.exec_():
+            size = size_dialog.get_size()
+
+            # Tạo đối tượng QTextImageFormat từ tệp ảnh và kích thước
+            image_format = QTextImageFormat()
+            image_format.setName(file_path)
+            image_format.setWidth(size)
+
+            # Chèn ảnh vào vị trí hiện tại của con trỏ
+            cursor = self.ui.textEdit.textCursor()
+            cursor.insertImage(image_format)
 	
-	def __init__(self):
-		super(MainScreen, self).__init__()
-		self.ui = Ui_MainWindow()
-		self.ui.setupUi(self)
+
 		
 app = QApplication(sys.argv)
 myapp = MainScreen()
