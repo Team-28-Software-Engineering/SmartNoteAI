@@ -123,7 +123,6 @@ class Ui_MainWindow(object):
 		icon13.addPixmap(QtGui.QPixmap("res/icons/bold.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
 		self.actionBold.setIcon(icon13)
 		self.actionBold.setObjectName("actionBold")
-		self.menuEdit.addAction(self.actionBold)
 		self.toolBar.addAction(self.actionBold)
 		self.actionBold.setCheckable(True)
 		self.actionItalic = QAction(MainWindow)
@@ -131,7 +130,6 @@ class Ui_MainWindow(object):
 		icon14.addPixmap(QtGui.QPixmap("res/icons/italic.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
 		self.actionItalic.setIcon(icon14)
 		self.actionItalic.setObjectName("actionItalic")
-		self.menuEdit.addAction(self.actionItalic)
 		self.toolBar.addAction(self.actionItalic)
 		self.actionItalic.setCheckable(True)
 		#################################
@@ -140,7 +138,6 @@ class Ui_MainWindow(object):
 		icon15.addPixmap(QtGui.QPixmap("res/icons/underline.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
 		self.actionUnderline.setIcon(icon15)
 		self.actionUnderline.setObjectName("actionUnderline")
-		self.menuEdit.addAction(self.actionUnderline)
 		self.toolBar.addAction(self.actionUnderline)
 		self.actionUnderline.setCheckable(True)
 		#################################
@@ -192,6 +189,7 @@ class Ui_MainWindow(object):
 		self.actionUndo.setShortcut("Ctrl+Z")
 		self.actionRedo.setShortcut("Ctrl+Y")
 		self.actionSearch.setShortcut("Ctrl+F")
+		self.actionExit.setShortcut("Ctrl+Q")  
 
 		self.retranslateUi(MainWindow)
 		QtCore.QMetaObject.connectSlotsByName(MainWindow)
