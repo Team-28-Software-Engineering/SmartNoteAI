@@ -20,7 +20,7 @@ class Ui_MainWindow(object):
 
 
 	def setupUi(self, MainWindow):
-		
+		self.mode = 'light'
 		MainWindow.setObjectName("MainWindow")
 		MainWindow.resize(800, 600)
 		MainWindow.setWindowIcon(QtGui.QIcon('res/icons/text-editor2.png'))
@@ -103,7 +103,6 @@ class Ui_MainWindow(object):
 		icon10.addPixmap(QtGui.QPixmap("res/icons/exit.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
 		self.actionExit.setIcon(icon10)
 		self.actionExit.setObjectName("actionExit")
-		#################################
 		self.actionSearch = QtWidgets.QAction(MainWindow)
 		icon11 = QtGui.QIcon()
 		icon11.addPixmap(QtGui.QPixmap("res/icons/search.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -111,8 +110,17 @@ class Ui_MainWindow(object):
 		self.actionSearch.setObjectName("actionSearch")
 		self.menuEdit.addAction(self.actionSearch)
 		self.toolBar.addAction(self.actionSearch)
-		
 		#################################
+		self.actionMode = QtWidgets.QAction(MainWindow)
+		icon12 = QtGui.QIcon()
+		icon12.addPixmap(QtGui.QPixmap("res/icons/mode.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+		self.actionMode.setIcon(icon12)
+		self.actionMode.setObjectName("actionMode")
+		self.menuView = QtWidgets.QMenu(self.menubar)
+		self.menuView.setObjectName("menuView")
+		MainWindow.setMenuBar(self.menubar)
+		#################################
+
 		self.menuFile.addAction(self.actionNew)
 		self.menuFile.addAction(self.actionOpen)
 		self.menuFile.addSeparator()
@@ -143,6 +151,12 @@ class Ui_MainWindow(object):
 		self.toolBar.addSeparator()
 		self.toolBar.addAction(self.actionAbout_Notepad)
 		self.toolBar.addAction(self.actionExit)
+		self.toolBar.addSeparator()
+		spacer = QtWidgets.QWidget()
+		spacer.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+		self.toolBar.addWidget(spacer)
+		self.toolBar.addAction(self.actionMode)
+		
 
 		self.actionNew.setShortcut("Ctrl+N")
 		self.actionOpen.setShortcut("Ctrl+O")
@@ -197,12 +211,18 @@ class Ui_MainWindow(object):
 		self.actionUndo.triggered.connect(self.textEdit.undo)
 		self.actionRedo.triggered.connect(self.textEdit.redo)
 
-
+		self.actionMode.triggered.connect(self.toggle_mode)
 		self.actionAbout_Notepad.triggered.connect(self.aboutapp)
 		
 
 		
+		self.actionMode.setCheckable(True)  # Cho phép nút chuyển đổi giữa hai trạng thái
 
+	def toggle_mode(self):
+		if self.actionMode.isChecked():  # Nếu đang ở chế độ tối
+			self.setStyleSheet("background-color: #222; color: #FFF;")
+		else:  # Nếu đang ở chế độ sáng
+			self.setStyleSheet("")  # Đặt lại stylesheet về mặc định
 
 
 	def openfile(self):
@@ -278,6 +298,33 @@ class Ui_MainWindow(object):
 		self.ui = Ui_Dialog()
 		self.ui.setupUi(self.window)
 		self.window.show()
+
+	def toggle_mode(self):
+		if self.mode == 'light':
+			self.mode = 'dark'
+			self.set_dark_mode()
+		else:
+			self.mode = 'light'
+			self.set_light_mode()
+
+	def set_dark_mode(self):
+		self.centralwidget.setStyleSheet("background-color: #333; color: #FFF;")
+		self.textEdit.setStyleSheet("background-color: #333; color: #FFF;")
+		self.menubar.setStyleSheet("background-color: #333; color: #FFF;")
+		self.statusbar.setStyleSheet("background-color: #333; color: #FFF;")
+		self.toolBar.setStyleSheet("background-color: #333;")
+		for action in self.toolBar.actions():
+			action.setStyleSheet("color: #FFF;")
+
+
+	def set_light_mode(self):
+		self.centralwidget.setStyleSheet("")
+		self.textEdit.setStyleSheet("")
+		self.menubar.setStyleSheet("")
+		self.statusbar.setStyleSheet("")
+		self.toolBar.setStyleSheet("")
+		for action in self.toolBar.actions():
+			action.setStyleSheet("")
 
 
 import sys
