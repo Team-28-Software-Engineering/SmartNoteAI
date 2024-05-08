@@ -10,6 +10,10 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QFileDialog, QMessageBox
 from about import Ui_Dialog 
 from PyQt5.QtGui import QKeySequence
+from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QMessageBox, QTextEdit, QInputDialog
+from PyQt5.QtGui import QIcon, QTextCursor, QTextCharFormat, QColor
+from PyQt5.QtCore import Qt
+
 
 
 class Ui_MainWindow(object):
@@ -18,7 +22,7 @@ class Ui_MainWindow(object):
 	def setupUi(self, MainWindow):
 		
 		MainWindow.setObjectName("MainWindow")
-		MainWindow.resize(594, 433)
+		MainWindow.resize(800, 600)
 		MainWindow.setWindowIcon(QtGui.QIcon('res/icons/text-editor2.png'))
 		self.centralwidget = QtWidgets.QWidget(MainWindow)
 		self.centralwidget.setObjectName("centralwidget")
@@ -99,6 +103,16 @@ class Ui_MainWindow(object):
 		icon10.addPixmap(QtGui.QPixmap("res/icons/exit.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
 		self.actionExit.setIcon(icon10)
 		self.actionExit.setObjectName("actionExit")
+		#################################
+		self.actionSearch = QtWidgets.QAction(MainWindow)
+		icon11 = QtGui.QIcon()
+		icon11.addPixmap(QtGui.QPixmap("res/icons/search.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+		self.actionSearch.setIcon(icon11)
+		self.actionSearch.setObjectName("actionSearch")
+		self.menuEdit.addAction(self.actionSearch)
+		self.toolBar.addAction(self.actionSearch)
+		
+		#################################
 		self.menuFile.addAction(self.actionNew)
 		self.menuFile.addAction(self.actionOpen)
 		self.menuFile.addSeparator()
@@ -139,6 +153,7 @@ class Ui_MainWindow(object):
 		self.actionPaste.setShortcut("Ctrl+V")
 		self.actionUndo.setShortcut("Ctrl+Z")
 		self.actionRedo.setShortcut("Ctrl+Y")
+		self.actionSearch.setShortcut("Ctrl+F")
 
 		self.retranslateUi(MainWindow)
 		QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -160,10 +175,12 @@ class Ui_MainWindow(object):
 		self.actionRedo.setText(_translate("MainWindow", "Redo"))
 		self.actionUndo.setText(_translate("MainWindow", "Undo"))
 		self.actionAbout_Notepad.setText(_translate("MainWindow", "About Notepad"))
+		self.actionSearch.setText(_translate("MainWindow", "Search"))
 		self.actionExit.setText(_translate("MainWindow", "Exit"))
 
 		self.filepath = ''
-
+		self.actionSearch.triggered.connect(self.search_text)
+		
 		self.actionNew.triggered.connect(self.textEdit.clear)
 		self.actionOpen.triggered.connect(self.openfile)
 
@@ -182,6 +199,7 @@ class Ui_MainWindow(object):
 
 
 		self.actionAbout_Notepad.triggered.connect(self.aboutapp)
+		
 
 		
 
@@ -200,8 +218,21 @@ class Ui_MainWindow(object):
 			filedata = f.read()
 			self.textEdit.setText(filedata)
 			f.close()
+	def remove_highlight(self):
+		cursor = self.ui.textEdit.textCursor()
+		cursor.clearSelection()
+		format = QtGui.QTextCharFormat()
+		cursor.setCharFormat(format)
 
-	
+	def search_text(self):
+		search_text, ok = QtWidgets.QInputDialog.getText(self.centralwidget, 'Search Text', 'Enter text to search:')
+		if ok and search_text:
+			cursor = self.textEdit.textCursor()
+			cursor.movePosition(QtGui.QTextCursor.Start)
+			cursor = self.textEdit.document().find(search_text, cursor)
+			if not cursor.isNull():
+				self.textEdit.setTextCursor(cursor)
+				self.textEdit.ensureCursorVisible()
 
 	def savefile(self):
 
