@@ -9,42 +9,14 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QFileDialog, QMessageBox
 from about import Ui_Dialog 
+from PyQt5.QtGui import QKeySequence
 
-from PyQt5.QtWidgets import QTextEdit
-from PyQt5.QtGui import QTextCursor, QColor
-
-class HighlightTextEdit(QTextEdit):
-	def __init__(self, parent=None):
-		super().__init__(parent)
-		self.setStyleSheet("background-color: white;")  # Set default background color
-		self.cursorPositionChanged.connect(self.highlightCurrentLine)
-
-	def highlightCurrentLine(self):
-		extraSelections = []
-
-		# Remove previous selections
-		self.setExtraSelections([])
-
-		# Get current line number
-		cursor = self.textCursor()
-		cursor.movePosition(QTextCursor.StartOfLine)
-		cursor.select(QTextCursor.LineUnderCursor)
-		line = cursor.selectedText()
-
-		# Create a selection with a different background color for the current line
-		selection = QTextEdit.ExtraSelection()
-		selection.format.setBackground(QColor("#FFFF99"))  # Yellow color
-		selection.format.setProperty(QTextFormat.FullWidthSelection, True)
-		selection.cursor = cursor
-		extraSelections.append(selection)
-
-		# Apply the selection
-		self.setExtraSelections(extraSelections)
 
 class Ui_MainWindow(object):
 
 
 	def setupUi(self, MainWindow):
+		
 		MainWindow.setObjectName("MainWindow")
 		MainWindow.resize(594, 433)
 		MainWindow.setWindowIcon(QtGui.QIcon('res/icons/text-editor2.png'))
@@ -53,8 +25,6 @@ class Ui_MainWindow(object):
 		self.horizontalLayout = QtWidgets.QHBoxLayout(self.centralwidget)
 		self.horizontalLayout.setObjectName("horizontalLayout")
 		self.textEdit = QtWidgets.QTextEdit(self.centralwidget)
-		self.textEdit.setObjectName("textEdit")
-		self.textEdit = HighlightTextEdit(self.centralwidget)
 		self.textEdit.setObjectName("textEdit")
 		self.horizontalLayout.addWidget(self.textEdit)
 		MainWindow.setCentralWidget(self.centralwidget)
@@ -159,6 +129,16 @@ class Ui_MainWindow(object):
 		self.toolBar.addSeparator()
 		self.toolBar.addAction(self.actionAbout_Notepad)
 		self.toolBar.addAction(self.actionExit)
+
+		self.actionNew.setShortcut("Ctrl+N")
+		self.actionOpen.setShortcut("Ctrl+O")
+		self.actionSave.setShortcut("Ctrl+S")
+		self.actionSave_as.setShortcut("Ctrl+Shift+S")
+		self.actionCut.setShortcut("Ctrl+X")
+		self.actionCopy.setShortcut("Ctrl+C")
+		self.actionPaste.setShortcut("Ctrl+V")
+		self.actionUndo.setShortcut("Ctrl+Z")
+		self.actionRedo.setShortcut("Ctrl+Y")
 
 		self.retranslateUi(MainWindow)
 		QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -268,6 +248,7 @@ class Ui_MainWindow(object):
 		self.ui.setupUi(self.window)
 		self.window.show()
 
+
 import sys
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -286,9 +267,3 @@ app = QApplication(sys.argv)
 myapp = MainScreen()
 myapp.show()
 sys.exit(app.exec_())
-
-
-
-
-
-
