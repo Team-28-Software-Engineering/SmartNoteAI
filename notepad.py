@@ -20,6 +20,9 @@ class Ui_MainWindow(object):
 
 
 	def setupUi(self, MainWindow):
+		self.word_count_checked = True
+		self.char_count_checked = True
+		self.line_count_checked = True
 		self.mode = 'light'
 		MainWindow.setObjectName("MainWindow")
 		MainWindow.resize(800, 600)
@@ -132,7 +135,6 @@ class Ui_MainWindow(object):
 		self.actionItalic.setObjectName("actionItalic")
 		self.toolBar.addAction(self.actionItalic)
 		self.actionItalic.setCheckable(True)
-		#################################
 		self.actionUnderline = QAction(MainWindow)
 		icon15 = QtGui.QIcon()
 		icon15.addPixmap(QtGui.QPixmap("res/icons/underline.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -140,6 +142,12 @@ class Ui_MainWindow(object):
 		self.actionUnderline.setObjectName("actionUnderline")
 		self.toolBar.addAction(self.actionUnderline)
 		self.actionUnderline.setCheckable(True)
+		#################################
+		self.actionStatistics = QtWidgets.QAction(MainWindow)
+		icon16 = QtGui.QIcon()
+		icon16.addPixmap(QtGui.QPixmap("res/icons/stat.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+		self.actionStatistics.setIcon(icon16)
+		self.actionStatistics.setObjectName("actionStatistics")
 		#################################
 		self.menuEdit.addAction(self.actionSearch)
 		self.toolBar.addAction(self.actionSearch)
@@ -174,6 +182,8 @@ class Ui_MainWindow(object):
 		spacer = QtWidgets.QWidget()
 		spacer.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
 		self.toolBar.addWidget(spacer)
+		self.toolBar.addAction(self.actionStatistics)
+		self.toolBar.addSeparator()
 		self.toolBar.addAction(self.actionExit)
 		self.toolBar.addAction(self.actionMode)
 		
@@ -248,6 +258,8 @@ class Ui_MainWindow(object):
 		self.actionItalic.triggered.connect(self.toggle_italic)
 		self.actionUnderline.triggered.connect(self.toggle_underline)
 		self.actionAbout_Notepad.triggered.connect(self.aboutapp)
+		self.actionStatistics.triggered.connect(self.show_statistics_dialog)
+
 		
 
 		
@@ -402,6 +414,55 @@ class Ui_MainWindow(object):
 		self.wordCountLabel.setText("Words: " + str(word_count))
 		self.characterCountLabel.setText("Characters: " + str(character_count))
 		self.lineCountLabel.setText("Lines: " + str(line_count))
+	def show_statistics_dialog(self):
+		dialog = QtWidgets.QDialog()
+		dialog.setWindowTitle("Statistics Options")
+
+		layout = QtWidgets.QVBoxLayout()
+
+		word_count_check = QtWidgets.QCheckBox("Word Count")
+		char_count_check = QtWidgets.QCheckBox("Character Count")
+		line_count_check = QtWidgets.QCheckBox("Line Count")
+
+		# Thiết lập trạng thái ban đầu của các checkbox
+		word_count_check.setChecked(self.word_count_checked)
+		char_count_check.setChecked(self.char_count_checked)
+		line_count_check.setChecked(self.line_count_checked)
+
+		layout.addWidget(word_count_check)
+		layout.addWidget(char_count_check)
+		layout.addWidget(line_count_check)
+
+		button_box = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
+		button_box.accepted.connect(dialog.accept)
+		button_box.rejected.connect(dialog.reject)
+
+		layout.addWidget(button_box)
+
+		dialog.setLayout(layout)
+
+		if dialog.exec_():
+			# Lưu lại trạng thái của các checkbox
+			self.word_count_checked = word_count_check.isChecked()
+			self.char_count_checked = char_count_check.isChecked()
+			self.line_count_checked = line_count_check.isChecked()
+
+			# Hiển thị hoặc ẩn các phần thống kê tương ứng
+			if self.word_count_checked:
+				self.wordCountLabel.show()
+			else:
+				self.wordCountLabel.hide()
+
+			if self.char_count_checked:
+				self.characterCountLabel.show()
+			else:
+				self.characterCountLabel.hide()
+
+			if self.line_count_checked:
+				self.lineCountLabel.show()
+			else:
+				self.lineCountLabel.hide()
+
 
 
 import sys
