@@ -108,9 +108,6 @@ class Ui_MainWindow(object):
 		icon11.addPixmap(QtGui.QPixmap("res/icons/search.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
 		self.actionSearch.setIcon(icon11)
 		self.actionSearch.setObjectName("actionSearch")
-		self.menuEdit.addAction(self.actionSearch)
-		self.toolBar.addAction(self.actionSearch)
-		#################################
 		self.actionMode = QtWidgets.QAction(MainWindow)
 		icon12 = QtGui.QIcon()
 		icon12.addPixmap(QtGui.QPixmap("res/icons/mode.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -119,9 +116,36 @@ class Ui_MainWindow(object):
 		self.menuView = QtWidgets.QMenu(self.menubar)
 		self.menuView.setObjectName("menuView")
 		MainWindow.setMenuBar(self.menubar)
-		#################################
-
+		self.actionBold = QAction(MainWindow)
 		self.menuFile.addAction(self.actionNew)
+		self.toolBar.addAction(self.actionNew)
+		icon13 = QtGui.QIcon()
+		icon13.addPixmap(QtGui.QPixmap("res/icons/bold.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+		self.actionBold.setIcon(icon13)
+		self.actionBold.setObjectName("actionBold")
+		self.menuEdit.addAction(self.actionBold)
+		self.toolBar.addAction(self.actionBold)
+		self.actionBold.setCheckable(True)
+		self.actionItalic = QAction(MainWindow)
+		icon14 = QtGui.QIcon()
+		icon14.addPixmap(QtGui.QPixmap("res/icons/italic.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+		self.actionItalic.setIcon(icon14)
+		self.actionItalic.setObjectName("actionItalic")
+		self.menuEdit.addAction(self.actionItalic)
+		self.toolBar.addAction(self.actionItalic)
+		self.actionItalic.setCheckable(True)
+		#################################
+		self.actionUnderline = QAction(MainWindow)
+		icon15 = QtGui.QIcon()
+		icon15.addPixmap(QtGui.QPixmap("res/icons/underline.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+		self.actionUnderline.setIcon(icon15)
+		self.actionUnderline.setObjectName("actionUnderline")
+		self.menuEdit.addAction(self.actionUnderline)
+		self.toolBar.addAction(self.actionUnderline)
+		self.actionUnderline.setCheckable(True)
+		#################################
+		self.menuEdit.addAction(self.actionSearch)
+		self.toolBar.addAction(self.actionSearch)
 		self.menuFile.addAction(self.actionOpen)
 		self.menuFile.addSeparator()
 		self.menuFile.addAction(self.actionSave)
@@ -137,7 +161,6 @@ class Ui_MainWindow(object):
 		self.menubar.addAction(self.menuFile.menuAction())
 		self.menubar.addAction(self.menuEdit.menuAction())
 		self.menubar.addAction(self.menuAbout.menuAction())
-		self.toolBar.addAction(self.actionNew)
 		self.toolBar.addAction(self.actionOpen)
 		self.toolBar.addAction(self.actionSave)
 		self.toolBar.addAction(self.actionSave_as)
@@ -150,12 +173,13 @@ class Ui_MainWindow(object):
 		self.toolBar.addAction(self.actionUndo)
 		self.toolBar.addSeparator()
 		self.toolBar.addAction(self.actionAbout_Notepad)
-		self.toolBar.addAction(self.actionExit)
 		self.toolBar.addSeparator()
 		spacer = QtWidgets.QWidget()
 		spacer.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
 		self.toolBar.addWidget(spacer)
+		self.toolBar.addAction(self.actionExit)
 		self.toolBar.addAction(self.actionMode)
+		
 		
 
 		self.actionNew.setShortcut("Ctrl+N")
@@ -212,12 +236,44 @@ class Ui_MainWindow(object):
 		self.actionRedo.triggered.connect(self.textEdit.redo)
 
 		self.actionMode.triggered.connect(self.toggle_mode)
+		self.actionBold.triggered.connect(self.toggle_bold)
+		self.actionItalic.triggered.connect(self.toggle_italic)
+		self.actionUnderline.triggered.connect(self.toggle_underline)
 		self.actionAbout_Notepad.triggered.connect(self.aboutapp)
 		
 
 		
 		self.actionMode.setCheckable(True)  # Cho phép nút chuyển đổi giữa hai trạng thái
+	def toggle_bold(self):
+		if self.actionBold.isChecked():
+			self.textEdit.setFontWeight(QtGui.QFont.Bold)
+		else:
+			self.textEdit.setFontWeight(QtGui.QFont.Normal)
+	def toggle_italic(self):
+		# Khi tính năng in nghiêng chữ được kích hoạt hoặc tắt
+		if self.actionItalic.isChecked():
+			self.set_text_italic(True)
+		else:
+			self.set_text_italic(False)
 
+	def set_text_italic(self, italic):
+		# Đặt văn bản in nghiêng hoặc không in nghiêng
+		font = self.textEdit.currentFont()
+		font.setItalic(italic)
+		self.textEdit.setCurrentFont(font)
+
+	def toggle_underline(self):
+		# Khi tính năng gạch chân được kích hoạt hoặc tắt
+		if self.actionUnderline.isChecked():
+			self.set_text_underline(True)
+		else:
+			self.set_text_underline(False)
+
+	def set_text_underline(self, underline):
+		# Đặt văn bản có gạch chân hoặc không có gạch chân
+		format = self.textEdit.currentCharFormat()
+		format.setFontUnderline(underline)
+		self.textEdit.setCurrentCharFormat(format)
 	def toggle_mode(self):
 		if self.actionMode.isChecked():  # Nếu đang ở chế độ tối
 			self.setStyleSheet("background-color: #222; color: #FFF;")
