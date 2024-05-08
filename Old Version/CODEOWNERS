@@ -1,7 +1,0 @@
-# Comments start with a hash symbol (#)
-# Each line specifies a file pattern followed by one or more GitHub usernames or team names
-/src/       @hoangbuituananh132109
-
-# Assign the owner for all files in the 'docs' directory to the team 'Team-28-Software-Engineering/team28'
-/docs/      @Team-28-Software-Engineering/team28
-
