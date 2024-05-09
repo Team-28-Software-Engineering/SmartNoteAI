@@ -1,5 +1,5 @@
 SimpleNotepad
-SimpleNotepad là một ứng dụng soạn thảo văn bản đơn giản được viết bằng Java.
+SimpleNotepad là một ứng dụng soạn thảo văn bản đơn giản được viết bằng Python.
 
 Tính năng
 Soạn Thảo Văn Bản: Cho phép người dùng tạo và chỉnh sửa văn bản.
@@ -8,6 +8,11 @@ Chia Sẻ Nội Dung: Tính năng cho phép người dùng chia sẻ nội dung 
 Yêu cầu
 Java Development Kit (JDK) 8 hoặc cao hơn.
 Cách Sử Dụng
+
+Các gói cần cài đặt:
+bạn cần cài đặt openai
+bạn cần dùng API từ chatGPT của bạn để có thể sử dụng tính năng chatbot
+
 Chạy Ứng Dụng:
 
 Chạy lớp SimpleNotepad trong gói main để khởi động ứng dụng.
