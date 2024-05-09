@@ -296,7 +296,6 @@ class Ui_MainWindow(object):
 		self.filepath = ''
 		self.actionSearch.triggered.connect(self.search_text)
 		
-		self.actionNew.triggered.connect(self.textEdit.clear)
 		self.actionOpen.triggered.connect(self.openfile)
 
 		self.actionSave.triggered.connect(self.savefile)
@@ -607,6 +606,13 @@ class MainScreen(QMainWindow):
         self.ui.textEdit.setAcceptDrops(True)
         self.ui.textEdit.dragEnterEvent = self.drag_enter_event
         self.ui.textEdit.dropEvent = self.drop_event
+		# Kết nối nút New với hàm new_notepad
+        self.ui.actionNew.triggered.connect(self.new_notepad)
+
+    def new_notepad(self):
+        # Tạo một cửa sổ notepad mới
+        new_notepad = MainScreen()
+        new_notepad.show()
 
     def drag_enter_event(self, event):
         if event.mimeData().hasUrls():
