@@ -454,11 +454,12 @@ class Ui_MainWindow(object):
 	def set_dark_mode(self):
 		self.centralwidget.setStyleSheet("background-color: #333; color: #FFF;")
 		self.textEdit.setStyleSheet("background-color: #333; color: #FFF;")
-		self.menubar.setStyleSheet("background-color: #333; color: #FFF;")
+		self.menubar.setStyleSheet("background-color: #666; color: #FFF;")  # Đảo màu nền và màu chữ
 		self.statusbar.setStyleSheet("background-color: #333; color: #FFF;")
-		self.toolBar.setStyleSheet("background-color: #333;")
+		self.toolBar.setStyleSheet("background-color: #666; color: #FFF;")
 		for action in self.toolBar.actions():
 			action.setStyleSheet("color: #FFF;")
+
 
 
 	def set_light_mode(self):
