@@ -1,0 +1,1 @@
+API_KEY = "sk-proj-ai1r5fNYuDwuRwlJtmQKT3BlbkFJGWU2NN8uftDxe7kbx7HZ"
