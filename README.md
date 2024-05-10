@@ -24,17 +24,27 @@ Sau khi có API key, hãy thay đổi giá trị YOUR_OPENAI_API_KEY trong file 
 Sử dụng
 Chạy ứng dụng bằng lệnh sau:
 ```
-python main.py
+python app.py
 ```
 Viết văn bản trong ô soạn thảo ở phía trên.
+
 Nhập câu hỏi hoặc yêu cầu của bạn vào ô chat ở phía dưới.
+
 Nhấn Enter hoặc nhấp vào nút "Send" để gửi tin nhắn và nhận câu trả lời từ trợ lý ảo.
+
+
 Tính năng mở rộng
+
 Thêm tính năng lưu và mở các tập tin văn bản.
+
 Cải thiện giao diện người dùng và trải nghiệm người dùng.
+
 Tích hợp với các dịch vụ trợ lý ảo khác như Dialogflow, Alexa, hoặc Microsoft Bot Framework.
+
+
 Tác giả
 Được phát triển bởi [Team-28-Software-Engineering].
+
 
 Bản quyền
 Ứng dụng được phân phối dưới giấy phép [tên giấy phép, ví dụ: MIT License]. Xem tệp LICENSE để biết chi tiết.
