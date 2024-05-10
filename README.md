@@ -1,36 +1,41 @@
-SimpleNotepad
-SimpleNotepad là một ứng dụng soạn thảo văn bản đơn giản được viết bằng Python.
+Notepad with Chatbot Integration
 
-Tính năng
-Soạn Thảo Văn Bản: Cho phép người dùng tạo và chỉnh sửa văn bản.
-Mở và Lưu Tệp Tin: Người dùng có thể mở và lưu tệp tin văn bản.
-Chia Sẻ Nội Dung: Tính năng cho phép người dùng chia sẻ nội dung tài liệu qua email.
+Giới thiệu
+Đây là một ứng dụng notepad đơn giản được tích hợp với một chatbot sử dụng OpenAI API. Ứng dụng cho phép người dùng viết và lưu trữ ghi chú cũng như tương tác với một trợ lý ảo để nhận được câu trả lời tự nhiên trên các câu hỏi và yêu cầu.
+
+Cài đặt
 Yêu cầu
-Java Development Kit (JDK) 8 hoặc cao hơn.
-Cách Sử Dụng
+Python 3.x
+PyQt5
+OpenAI Python SDK
+Cài đặt PyQt5
+bash
+Sao chép mã
+pip install PyQt5
+Cài đặt OpenAI Python SDK
+bash
+Sao chép mã
+pip install openai
+Thiết lập OpenAI API Key
+Trước khi sử dụng ứng dụng, bạn cần có một API key từ OpenAI. Bạn có thể đăng ký tại đây.
 
-Các gói cần cài đặt:
-bạn cần cài đặt openai
-bạn cần dùng API từ chatGPT của bạn để có thể sử dụng tính năng chatbot
+Sau khi có API key, hãy thay đổi giá trị YOUR_OPENAI_API_KEY trong file main.py với API key của bạn.
 
-Chạy Ứng Dụng:
+Sử dụng
+Chạy ứng dụng bằng lệnh sau:
 
-Chạy lớp SimpleNotepad trong gói main để khởi động ứng dụng.
-Soạn Thảo Văn Bản:
+bash
+Sao chép mã
+python main.py
+Viết văn bản trong ô soạn thảo ở phía trên.
+Nhập câu hỏi hoặc yêu cầu của bạn vào ô chat ở phía dưới.
+Nhấn Enter hoặc nhấp vào nút "Send" để gửi tin nhắn và nhận câu trả lời từ trợ lý ảo.
+Tính năng mở rộng
+Thêm tính năng lưu và mở các tập tin văn bản.
+Cải thiện giao diện người dùng và trải nghiệm người dùng.
+Tích hợp với các dịch vụ trợ lý ảo khác như Dialogflow, Alexa, hoặc Microsoft Bot Framework.
+Tác giả
+Được phát triển bởi [Your Name].
 
-Bạn có thể nhập và chỉnh sửa văn bản trên khu vực soạn thảo.
-Mở và Lưu Tệp Tin:
-
-Sử dụng menu "File" để mở và lưu tệp tin văn bản.
-Phát Triển Tiếp
-Các tính năng tiềm năng có thể bổ sung vào SimpleNotepad:
-
-Hỗ trợ nhiều định dạng tệp tin văn bản.
-Tính năng tìm kiếm và thay thế.
-Tính năng thống kê và đánh giá văn bản.
-Tích hợp với các dịch vụ lưu trữ đám mây.
-Tối ưu hóa giao diện người dùng và trải nghiệm người dùng.
-Giấy Phép
-Dự án được phát hành dưới giấy phép MIT License.
-
-Hãy cập nhật các phần như yêu cầu hệ thống, hướng dẫn cài đặt, cấu hình, và hướng dẫn đóng góp tùy thuộc vào yêu cầu cụ thể của dự án.
+Bản quyền
+Ứng dụng được phân phối dưới giấy phép [tên giấy phép, ví dụ: MIT License]. Xem tệp LICENSE để biết chi tiết.
