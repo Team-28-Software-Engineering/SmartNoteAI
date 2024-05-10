@@ -1,28 +1,31 @@
-Notepad with Chatbot Integration
+#Notepad with Chatbot Integration and Identify text from photos
 
-Giới thiệu
-Đây là một ứng dụng notepad đơn giản được tích hợp với một chatbot sử dụng OpenAI API. Ứng dụng cho phép người dùng viết và lưu trữ ghi chú cũng như tương tác với một trợ lý ảo để nhận được câu trả lời tự nhiên trên các câu hỏi và yêu cầu.
+##Giới thiệu
+Đây là một ứng dụng notepad đơn giản được tích hợp với một chatbot sử dụng OpenAI API. Ứng dụng cho phép người dùng viết và lưu trữ ghi chú cũng như tương tác với một trợ lý ảo để nhận được câu trả lời tự nhiên trên các câu hỏi và yêu cầu. Ứng dụng cũng cung cấp khả năng nhận diện văn bản từ ảnh và đưa ra màn hình cho người sử dụng
 
-Cài đặt
-Yêu cầu
+##Cài đặt
+###Yêu cầu
 Python 3.x
 PyQt5
 OpenAI Python SDK
-Cài đặt PyQt5
+
+###Cài đặt PyQt5
 ```
 pip install PyQt5
 ```
-Cài đặt OpenAI Python SDK
+###Cài đặt OpenAI Python SDK
 ```
 pip install openai
 ```
-Thiết lập OpenAI API Key
+##Thiết lập OpenAI API Key
+
 Trước khi sử dụng ứng dụng, bạn cần có một API key từ OpenAI. Bạn có thể đăng ký [tại đây](https://platform.openai.com/api-keys).
 
 Sau khi có API key, hãy thay đổi giá trị YOUR_OPENAI_API_KEY trong file main.py với API key của bạn.
 
-Sử dụng
-Chạy ứng dụng bằng lệnh sau:
+##Sử dụng
+
+###Chạy ứng dụng bằng lệnh sau:
 ```
 python app.py
 ```
@@ -33,18 +36,18 @@ Nhập câu hỏi hoặc yêu cầu của bạn vào ô chat ở phía dưới.
 Nhấn Enter hoặc nhấp vào nút "Send" để gửi tin nhắn và nhận câu trả lời từ trợ lý ảo.
 
 
-Tính năng mở rộng
+##Tính năng mở rộng
 
-Thêm tính năng lưu và mở các tập tin văn bản.
+Có hầu hết các tính năng có trong một NotePad đơn giản và có thêm các tính năng đặc biệt như chatbot và nhận diện ảnh
 
 Cải thiện giao diện người dùng và trải nghiệm người dùng.
 
 Tích hợp với các dịch vụ trợ lý ảo khác như Dialogflow, Alexa, hoặc Microsoft Bot Framework.
 
 
-Tác giả
+##Tác giả
 Được phát triển bởi [Team-28-Software-Engineering].
 
 
-Bản quyền
+##Bản quyền
 Ứng dụng được phân phối dưới giấy phép [tên giấy phép, ví dụ: MIT License]. Xem tệp LICENSE để biết chi tiết.
