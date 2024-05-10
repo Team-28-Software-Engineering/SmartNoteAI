@@ -219,7 +219,6 @@ class Ui_MainWindow(object):
 		icon22.addPixmap(QtGui.QPixmap("res/icons/audio2text.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
 		self.actionAudio_to_Text.setIcon(icon22)
 		self.actionAudio_to_Text.setObjectName("actionAudio_to_Text")
-		self.menuFile.addAction(self.actionAudio_to_Text)
 		#################################
 		self.toolBar.addAction(self.actionFont)
 		self.toolBar.addAction(self.actionBold)
@@ -496,7 +495,15 @@ class Ui_MainWindow(object):
 
 	
 	def exitapp(self):
-		exit()
+		reply = QMessageBox.question(None, 'Message', 'Do you want to save the file before exiting?', QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel)
+
+		if reply == QMessageBox.Yes:
+			self.savefile()
+			exit()
+		elif reply == QMessageBox.No:
+			exit()
+		else:
+			pass
 
 
 	def aboutapp(self):
