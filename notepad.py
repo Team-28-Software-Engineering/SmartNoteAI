@@ -63,6 +63,8 @@ class Ui_MainWindow(object):
 
 
 	def setupUi(self, MainWindow):
+		self.currentFontColor = QtGui.QColor(QtCore.Qt.black)
+		self.currentHighlightColor = QtGui.QColor(QtCore.Qt.yellow)
 		self.split_state = False
 		self.word_count_checked = True
 		self.char_count_checked = True
@@ -223,6 +225,21 @@ class Ui_MainWindow(object):
 		self.actionAudio_to_Text.setIcon(icon22)
 		self.actionAudio_to_Text.setObjectName("actionAudio_to_Text")
 		#################################
+		#################################
+		self.actionFontColor = QtWidgets.QAction(MainWindow)
+		icon_fontcolor = QtGui.QIcon()
+		icon_fontcolor.addPixmap(QtGui.QPixmap("res/icons/fontcolor.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+		self.actionFontColor.setIcon(icon_fontcolor)
+		self.actionFontColor.setObjectName("actionFontColor")
+
+		self.actionHighlight = QtWidgets.QAction(MainWindow)
+		icon_highlight = QtGui.QIcon()
+		icon_highlight.addPixmap(QtGui.QPixmap("res/icons/highlight.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+		self.actionHighlight.setIcon(icon_highlight)
+		self.actionHighlight.setObjectName("actionHighlight")
+		#################################
+		self.toolBar.addAction(self.actionFontColor)
+		self.toolBar.addAction(self.actionHighlight)
 		self.toolBar.addAction(self.actionFont)
 		self.toolBar.addAction(self.actionBold)
 		self.toolBar.addAction(self.actionItalic)
@@ -359,6 +376,8 @@ class Ui_MainWindow(object):
 		self.actionAbout_Notepad.setText(_translate("MainWindow", "About Notepad"))
 		self.actionSearch.setText(_translate("MainWindow", "Search"))
 		self.actionExit.setText(_translate("MainWindow", "Exit"))
+		self.actionFontColor.setText(_translate("MainWindow", "Font Color"))
+		self.actionHighlight.setText(_translate("MainWindow", "Highlight"))
 
 		self.filepath = ''
 		self.actionSearch.triggered.connect(self.search_text)
@@ -390,7 +409,8 @@ class Ui_MainWindow(object):
 		self.actionOCR.triggered.connect(self.perform_ocr)
 		self.chat_action.triggered.connect(self.toggle_chat)
 		self.actionAudio_to_Text.triggered.connect(self.audio_to_text)
-		
+		self.actionFontColor.triggered.connect(self.fontColor)
+		self.actionHighlight.triggered.connect(self.highlight)
 
 		
 		self.actionMode.setCheckable(True)  # Cho phép nút chuyển đổi giữa hai trạng thái
@@ -413,6 +433,17 @@ class Ui_MainWindow(object):
 			text = response.choices[0].message["content"]
 			self.textEdit.append(f"\nUser: {user_input}\nChatbot: {text}\n")
 			self.chat_input.clear()
+	def fontColor(self):
+		color = QtWidgets.QColorDialog.getColor(self.currentFontColor)
+		if color.isValid():
+			self.currentFontColor = color
+			self.textEdit.setTextColor(color)
+
+	def highlight(self):
+		color = QtWidgets.QColorDialog.getColor(self.currentHighlightColor)
+		if color.isValid():
+			self.currentHighlightColor = color
+			self.textEdit.setTextBackgroundColor(color)
 	def toggle_bold(self):
 		if self.actionBold.isChecked():
 			self.textEdit.setFontWeight(QtGui.QFont.Bold)
@@ -646,11 +677,41 @@ class Ui_MainWindow(object):
 				self.set_text_color(Qt.black)
 	def set_text_color(self, color):
 		cursor = self.textEdit.textCursor()
-		cursor.setPosition(0)
-		cursor.movePosition(QTextCursor.End, QTextCursor.KeepAnchor)
-		fmt = QTextCharFormat()
-		fmt.setForeground(color)
-		cursor.setCharFormat(fmt)
+		cursor.select(QtGui.QTextCursor.Document)
+		format = QtGui.QTextCharFormat()
+
+		# Lấy format hiện tại của văn bản
+		current_format = cursor.charFormat()
+
+		# Thiết lập màu chữ cho format mới
+		format.setForeground(current_format.foreground())
+
+		# Kiểm tra trạng thái của hộp kiểm "Check Spelling"
+		spelling_enabled = self.spell_check_checked
+
+		# Lưu lại màu chữ của từng ký tự
+		text = self.textEdit.toPlainText()
+		cursor_position = 0
+		while cursor_position < len(text):
+			cursor.setPosition(cursor_position)
+			cursor.movePosition(QtGui.QTextCursor.Right, QtGui.QTextCursor.KeepAnchor)
+			char_format = cursor.charFormat()
+			if char_format.hasProperty(QtGui.QTextFormat.ForegroundBrush):
+				char_color = char_format.foreground().color()
+				format.setForeground(char_color)
+				cursor.setCharFormat(format)
+			cursor_position += len(cursor.selectedText())
+
+		# Nếu kiểm tra chính tả đang được bật, áp dụng gạch chân nhiễu
+		if spelling_enabled:
+			format.setUnderlineStyle(QtGui.QTextCharFormat.SpellCheckUnderline)
+		else:
+			# Nếu kiểm tra chính tả được tắt, loại bỏ gạch chân nhiễu
+			format.setUnderlineStyle(QtGui.QTextCharFormat.NoUnderline)
+
+		cursor.setCharFormat(format)
+
+
 
 	def show_current_font(self, font):
 		# Kiểm tra xem checkbox "Show Current Font" đã được chọn hay không
@@ -809,18 +870,39 @@ class Ui_MainWindow(object):
 		# Lấy văn bản trong textEdit
 		text = self.textEdit.toPlainText()
 
+		# Tạo một danh sách để lưu trữ màu chữ của từng phần văn bản
+		char_formats = []
+
 		# Tách văn bản thành các từ và kiểm tra chính tả
 		for start_pos, end_pos, word in self.iterate_words(text):
 			if not self.spell_checker.check(word):
-				# Nếu từ không đúng chính tả, đánh dấu bằng việc thay đổi màu đỏ
+				# Nếu từ không đúng chính tả, lưu màu chữ hiện tại và áp dụng gạch chân nhiễu
 				cursor.setPosition(start_pos)
 				cursor.movePosition(QtGui.QTextCursor.Right, QtGui.QTextCursor.KeepAnchor, end_pos - start_pos)
-				format = QtGui.QTextCharFormat()
-				format.setForeground(QtGui.QColor("red"))
-				cursor.setCharFormat(format)
+				char_format = cursor.charFormat()
+				char_formats.append((start_pos, char_format.foreground()))  # Lưu trữ màu chữ hiện tại
+				char_format.setUnderlineStyle(QtGui.QTextCharFormat.SpellCheckUnderline)
+				char_format.setUnderlineColor(Qt.red)  # Đặt màu gạch chân nhiễu là màu đỏ
+				cursor.setCharFormat(char_format)
+			else:
+				char_formats.append(None)  # Không áp dụng gạch chân nhiễu, để màu chữ không thay đổi
+
+		# Khôi phục màu chữ ban đầu cho các từ không cần áp dụng gạch chân nhiễu
+		for i, char_format in enumerate(char_formats):
+			if char_format is None:
+				continue
+			start_pos, color = char_format
+			cursor.setPosition(start_pos)
+			cursor.movePosition(QtGui.QTextCursor.Right, QtGui.QTextCursor.KeepAnchor, 1)
+			char_format = cursor.charFormat()
+			char_format.setForeground(color)  # Thiết lập màu chữ trở lại
+			cursor.setCharFormat(char_format)
 
 		# Khôi phục vị trí của con trỏ
 		cursor.setPosition(cursor_pos)
+
+
+
 	def iterate_words(self, text):
 		"""
 		Hàm này tách văn bản thành các từ và trả về vị trí bắt đầu và kết thúc của từ trong văn bản cùng với từ đó.
