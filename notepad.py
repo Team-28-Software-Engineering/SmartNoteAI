@@ -22,6 +22,8 @@ from PyQt5.QtWidgets import QLabel, QVBoxLayout, QDialog, QSlider, QPushButton
 from PIL import Image
 import pytesseract
 import speech_recognition as sr
+import enchant
+from PyQt5.QtCore import QTimer
 class ImageSizeDialog(QDialog):
     def __init__(self, parent=None):
         super(ImageSizeDialog, self).__init__(parent)
@@ -66,6 +68,7 @@ class Ui_MainWindow(object):
 		self.char_count_checked = True
 		self.line_count_checked = True
 		self.show_font_checked = False
+		self.spell_check_checked = True
 		self.mode = 'light'
 		MainWindow.setObjectName("MainWindow")
 		MainWindow.resize(1000, 800)
@@ -324,6 +327,18 @@ class Ui_MainWindow(object):
 		# Kết nối sự kiện enter của QLineEdit để gửi tin nhắn
 		self.chat_input.returnPressed.connect(self.send_message)
 		#########
+		# Khởi tạo enchant dictionary
+		self.spell_checker = enchant.Dict("en_US")
+
+		# Tạo một QTimer để kiểm tra lỗi chính tả sau một khoảng thời gian chờ
+		self.spell_check_timer = QTimer()
+		self.spell_check_timer.timeout.connect(self.check_spelling)
+
+		# Kết nối sự kiện văn bản thay đổi để bắt đầu kiểm tra chính tả
+		self.textEdit.textChanged.connect(self.start_spell_check_timer)
+		#########
+		
+		#########
 
 	def retranslateUi(self, MainWindow):
 		_translate = QtCore.QCoreApplication.translate
@@ -375,7 +390,6 @@ class Ui_MainWindow(object):
 		self.actionOCR.triggered.connect(self.perform_ocr)
 		self.chat_action.triggered.connect(self.toggle_chat)
 		self.actionAudio_to_Text.triggered.connect(self.audio_to_text)
-
 		
 
 		
@@ -568,18 +582,20 @@ class Ui_MainWindow(object):
 		char_count_check = QtWidgets.QCheckBox("Character Count")
 		line_count_check = QtWidgets.QCheckBox("Line Count")
 		font_check = QtWidgets.QCheckBox("Show Current Font")
+		spell_check_check = QtWidgets.QCheckBox("Check Spelling")
 
 		# Thiết lập trạng thái ban đầu của các checkbox
 		word_count_check.setChecked(self.word_count_checked)
 		char_count_check.setChecked(self.char_count_checked)
 		line_count_check.setChecked(self.line_count_checked)
 		font_check.setChecked(self.show_font_checked)
-
+		spell_check_check.setChecked(self.spell_check_checked)
 
 		layout.addWidget(word_count_check)
 		layout.addWidget(char_count_check)
 		layout.addWidget(line_count_check)
 		layout.addWidget(font_check)
+		layout.addWidget(spell_check_check)
 
 		button_box = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
 		button_box.accepted.connect(dialog.accept)
@@ -595,6 +611,7 @@ class Ui_MainWindow(object):
 			self.char_count_checked = char_count_check.isChecked()
 			self.line_count_checked = line_count_check.isChecked()
 			self.show_font_checked = font_check.isChecked()
+			self.spell_check_checked = spell_check_check.isChecked()
 
 			# Hiển thị hoặc ẩn các phần thống kê tương ứng
 			if self.word_count_checked:
@@ -619,6 +636,13 @@ class Ui_MainWindow(object):
 				existing_widget = self.statusbar.findChild(QtWidgets.QLabel, "fontLabel")
 				if existing_widget:
 					existing_widget.deleteLater()
+
+			# Bật hoặc tắt kiểm tra chính tả
+			if self.spell_check_checked:
+				self.start_spell_check_timer()
+			else:
+				self.stop_spell_check_timer()
+
 	def show_current_font(self, font):
 		# Kiểm tra xem checkbox "Show Current Font" đã được chọn hay không
 		if not self.show_font_checked:
@@ -762,6 +786,49 @@ class Ui_MainWindow(object):
 			# Nếu có lỗi, thông báo cho người dùng
 			QMessageBox.warning(None, "Error", str(e))
 
+	def start_spell_check_timer(self):
+		if self.spell_check_checked:
+			self.spell_check_timer.start(1000) 
+	def stop_spell_check_timer(self):
+		self.spell_check_timer.stop() 
+
+	def check_spelling(self):
+		self.spell_check_timer.stop()  # Dừng bộ đếm thời gian
+		cursor = self.textEdit.textCursor()
+		cursor_pos = cursor.position()  # Lưu lại vị trí của con trỏ
+
+		# Lấy văn bản trong textEdit
+		text = self.textEdit.toPlainText()
+
+		# Tách văn bản thành các từ và kiểm tra chính tả
+		for start_pos, end_pos, word in self.iterate_words(text):
+			if not self.spell_checker.check(word):
+				# Nếu từ không đúng chính tả, đánh dấu bằng việc thay đổi màu đỏ
+				cursor.setPosition(start_pos)
+				cursor.movePosition(QtGui.QTextCursor.Right, QtGui.QTextCursor.KeepAnchor, end_pos - start_pos)
+				format = QtGui.QTextCharFormat()
+				format.setForeground(QtGui.QColor("red"))
+				cursor.setCharFormat(format)
+
+		# Khôi phục vị trí của con trỏ
+		cursor.setPosition(cursor_pos)
+	def iterate_words(self, text):
+		"""
+		Hàm này tách văn bản thành các từ và trả về vị trí bắt đầu và kết thúc của từ trong văn bản cùng với từ đó.
+		"""
+		in_word = False
+		start_pos = 0
+		for pos, char in enumerate(text):
+			if char.isalnum():
+				if not in_word:
+					start_pos = pos
+					in_word = True
+			else:
+				if in_word:
+					yield start_pos, pos, text[start_pos:pos]
+					in_word = False
+		if in_word:
+			yield start_pos, len(text), text[start_pos:]
 
 
 
