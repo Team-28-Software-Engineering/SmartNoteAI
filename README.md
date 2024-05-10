@@ -9,10 +9,10 @@ Python 3.x
 PyQt5
 OpenAI Python SDK
 Cài đặt PyQt5
-'''
+```
 pip install PyQt5
 Cài đặt OpenAI Python SDK
-'''
+```
 pip install openai
 Thiết lập OpenAI API Key
 Trước khi sử dụng ứng dụng, bạn cần có một API key từ OpenAI. Bạn có thể đăng ký [tại đây](https://platform.openai.com/api-keys).
@@ -22,7 +22,7 @@ Sau khi có API key, hãy thay đổi giá trị YOUR_OPENAI_API_KEY trong file 
 Sử dụng
 Chạy ứng dụng bằng lệnh sau:
 
-'''
+```
 python main.py
 Viết văn bản trong ô soạn thảo ở phía trên.
 Nhập câu hỏi hoặc yêu cầu của bạn vào ô chat ở phía dưới.
