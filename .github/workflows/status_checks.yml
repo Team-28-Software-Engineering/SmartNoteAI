@@ -12,15 +12,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # Add your steps for code validation, linting, formatting, etc.
-      # Example:
-      # - name: Run unit tests
+      # Thêm các bước kiểm tra mã nguồn, linting, định dạng, v.v.
+      # Ví dụ:
+      # - name: Chạy các bài kiểm tra đơn vị
       #   run: gradlew.bat test
 
-      # - name: Run code formatting check
+      # - name: Kiểm tra định dạng mã nguồn
       #   run: gradlew.bat spotlessCheck
 
-      # - name: Run code linting check
+      # - name: Kiểm tra lỗi linting trong mã nguồn
       #   run: gradlew.bat lint
 
-  # Add more jobs for additional checks if needed
+  # Thêm các công việc khác cho các kiểm tra bổ sung nếu cần
