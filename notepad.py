@@ -5,7 +5,7 @@
 # Created by: PyQt5 UI code generator 5.5.1
 #
 # WARNING! All changes made in this file will be lost!
-
+from pydub import AudioSegment
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QFileDialog, QMessageBox
 from about import Ui_Dialog 
@@ -21,6 +21,7 @@ from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QLabel, QVBoxLayout, QDialog, QSlider, QPushButton
 from PIL import Image
 import pytesseract
+import speech_recognition as sr
 class ImageSizeDialog(QDialog):
     def __init__(self, parent=None):
         super(ImageSizeDialog, self).__init__(parent)
@@ -197,25 +198,28 @@ class Ui_MainWindow(object):
 		icon18.addPixmap(QtGui.QPixmap("res/icons/image.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
 		self.actionInsertImage.setIcon(icon18)
 		self.actionInsertImage.setObjectName("actionInsertImage")
-		#################################
 		self.actionFont = QAction(MainWindow)
 		self.actionFont.setObjectName("actionFont")
 		icon19 = QtGui.QIcon()
 		icon19.addPixmap(QtGui.QPixmap("res/icons/font.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
 		self.actionFont.setIcon(icon19)
 		self.actionFont.setObjectName("actionFont") 
-		#################################
 		self.actionOCR = QtWidgets.QAction(MainWindow)
 		icon20 = QtGui.QIcon()
 		icon20.addPixmap(QtGui.QPixmap("res/icons/ocr.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
 		self.actionOCR.setIcon(icon20)
 		self.actionOCR.setObjectName("actionOCR")
-		#################################
-		# Thêm nút chat vào thanh công cụ
 		self.chat_action = QtWidgets.QAction(MainWindow)
 		icon21 = QtGui.QIcon()
 		icon21.addPixmap(QtGui.QPixmap("res/icons/gpt.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
 		self.chat_action.setIcon(icon21)
+		#################################
+		self.actionAudio_to_Text = QtWidgets.QAction(MainWindow)
+		icon22 = QtGui.QIcon()
+		icon22.addPixmap(QtGui.QPixmap("res/icons/audio2text.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+		self.actionAudio_to_Text.setIcon(icon22)
+		self.actionAudio_to_Text.setObjectName("actionAudio_to_Text")
+		self.menuFile.addAction(self.actionAudio_to_Text)
 		#################################
 		self.toolBar.addAction(self.actionFont)
 		self.toolBar.addAction(self.actionBold)
@@ -225,6 +229,7 @@ class Ui_MainWindow(object):
 		self.toolBar.addSeparator()
 		self.toolBar.addAction(self.chat_action)
 		self.toolBar.addAction(self.actionOCR)
+		self.toolBar.addAction(self.actionAudio_to_Text)
 		self.toolBar.addSeparator()
 		self.toolBar.addAction(self.splitAction)
 		self.menuEdit.addAction(self.actionSearch)
@@ -370,6 +375,7 @@ class Ui_MainWindow(object):
 		self.actionFont.triggered.connect(self.choose_font)
 		self.actionOCR.triggered.connect(self.perform_ocr)
 		self.chat_action.triggered.connect(self.toggle_chat)
+		self.actionAudio_to_Text.triggered.connect(self.audio_to_text)
 
 		
 
@@ -722,6 +728,32 @@ class Ui_MainWindow(object):
 			
 			# Append the extracted text to the text edit
 			self.textEdit.append(extracted_text)
+	def audio_to_text(self):
+		# Mở cửa sổ để chọn file âm thanh
+		filename, _ = QFileDialog.getOpenFileName(None, "Select Audio File", "", "Audio Files (*.wav *.mp3)")
+
+		if filename == "":
+			return
+
+		try:
+			# Chuyển đổi file mp3 thành WAV để nhận dạng âm thanh
+			sound = AudioSegment.from_mp3(filename)
+			filename_wav = filename[:-4] + ".wav"
+			sound.export(filename_wav, format="wav")
+
+			# Sử dụng thư viện SpeechRecognition để nhận dạng âm thanh
+			recognizer = sr.Recognizer()
+			with sr.AudioFile(filename_wav) as source:
+				audio_data = recognizer.record(source)
+				text = recognizer.recognize_google(audio_data)
+
+			# Thêm văn bản nhận dạng được vào cuối textEdit
+			self.textEdit.moveCursor(QtGui.QTextCursor.End)
+			self.textEdit.insertPlainText(text)
+
+		except Exception as e:
+			# Nếu có lỗi, thông báo cho người dùng
+			QMessageBox.warning(None, "Error", str(e))
 
 
 
