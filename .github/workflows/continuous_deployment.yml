@@ -12,8 +12,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # Add your steps for building and deploying your application
-      # Example:
+      # Thêm các bước để xây dựng và triển khai ứng dụng của bạn
+      # Ví dụ:
       # - name: Set up JDK
       #   uses: actions/setup-java@v2
       #   with:
@@ -24,5 +24,5 @@ jobs:
 
       # - name: Deploy application
       #   run: |
-      #     # Add your deployment commands here
-      #     # For example: scp -r ./dist/* user@your-server:/path/to/deploy
+      #     # Thêm các lệnh triển khai của bạn ở đây
+      #     # Ví dụ: scp -r ./dist/* user@your-server:/path/to/deploy
