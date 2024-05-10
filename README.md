@@ -17,6 +17,21 @@ pip install PyQt5
 ```
 pip install openai
 ```
+### Cài đặt PyEnchant
+```
+pip install pyenchant
+```
+### Cài đặt pydub
+```
+pip install pydub
+```
+### Cài đặt ffmpeg
+Tải ffmped [tại đây](https://www.gyan.dev/ffmpeg/builds/ffmpeg-git-essentials.7z) và giải nén
+
+Sau đó sao chép vđịa chỉ path của tệp bin trong forder đã giải nén và vào thanh tìm kiếm và mở Edit the System environment variables, sau đó mở Environment Variables 
+
+Ở phần System Varibles, nhấn mục Path và nhấn Edit, sau đó nhấn New và thêm địa chỉ Path của tệp bin đã sao chép và nhấn ok để hoàn thành
+
 ## Thiết lập OpenAI API Key
 
 Trước khi sử dụng ứng dụng, bạn cần có một API key từ OpenAI. Bạn có thể đăng ký [tại đây](https://platform.openai.com/api-keys).
