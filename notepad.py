@@ -685,8 +685,8 @@ import sys
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from notepad import Ui_MainWindow 
-
-
+import openai
+import config
 
 class MainScreen(QMainWindow):
     def __init__(self):
@@ -696,11 +696,35 @@ class MainScreen(QMainWindow):
         self.ui.textEdit.setAcceptDrops(True)
         self.ui.textEdit.dragEnterEvent = self.drag_enter_event
         self.ui.textEdit.dropEvent = self.drop_event
-		# Kết nối nút New với hàm new_notepad
         self.ui.actionNew.triggered.connect(self.new_notepad)
 
+        # Thiết lập OpenAI API key
+        openai.api_key = config.API_KEY
+
+        # Tạo khung chat và nút gửi tin nhắn
+        self.chatbot_frame = QWidget(self)
+        self.chat_input = QLineEdit(self.chatbot_frame)
+        self.chat_button = QPushButton("Send", self.chatbot_frame)
+
+        # Tạo layout cho khung chat
+        hbox_chat = QHBoxLayout()
+        hbox_chat.addWidget(self.chat_input)
+        hbox_chat.addWidget(self.chat_button)
+        self.chatbot_frame.setLayout(hbox_chat)
+
+        # Tạo layout chính cho cửa sổ
+        vbox_main = QVBoxLayout()
+        vbox_main.addWidget(self.ui.textEdit)
+        vbox_main.addWidget(self.chatbot_frame)
+        self.ui.horizontalLayout.addLayout(vbox_main)
+
+        # Kết nối sự kiện clicked của nút gửi tin nhắn
+        self.chat_button.clicked.connect(self.send_message)
+
+        # Kết nối sự kiện enter của QLineEdit để gửi tin nhắn
+        self.chat_input.returnPressed.connect(self.send_message)
+
     def new_notepad(self):
-        # Tạo một cửa sổ notepad mới
         new_notepad = MainScreen()
         new_notepad.show()
 
@@ -732,6 +756,22 @@ class MainScreen(QMainWindow):
             # Chèn ảnh vào vị trí hiện tại của con trỏ
             cursor = self.ui.textEdit.textCursor()
             cursor.insertImage(image_format)
+
+    def send_message(self):
+        user_input = self.chat_input.text().strip()
+        if user_input:
+            response = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo-0125",
+                messages=[
+                    {"role": "system", "content": "You are a helpful assistant."},
+                    {"role": "user", "content": user_input}
+                ],
+                max_tokens=1000
+            )
+            text = response.choices[0].message["content"]
+            self.ui.textEdit.append(f"\nUser: {user_input}\nChatbot: {text}\n")
+            self.chat_input.clear()
+	
 	
 
 		
