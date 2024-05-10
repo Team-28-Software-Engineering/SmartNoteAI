@@ -642,6 +642,15 @@ class Ui_MainWindow(object):
 				self.start_spell_check_timer()
 			else:
 				self.stop_spell_check_timer()
+				# Set text color to black when spell check is disabled
+				self.set_text_color(Qt.black)
+	def set_text_color(self, color):
+		cursor = self.textEdit.textCursor()
+		cursor.setPosition(0)
+		cursor.movePosition(QTextCursor.End, QTextCursor.KeepAnchor)
+		fmt = QTextCharFormat()
+		fmt.setForeground(color)
+		cursor.setCharFormat(fmt)
 
 	def show_current_font(self, font):
 		# Kiểm tra xem checkbox "Show Current Font" đã được chọn hay không
