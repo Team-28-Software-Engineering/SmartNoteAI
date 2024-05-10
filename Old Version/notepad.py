@@ -63,6 +63,7 @@ class Ui_MainWindow(object):
 		self.word_count_checked = True
 		self.char_count_checked = True
 		self.line_count_checked = True
+		self.show_font_checked = False
 		self.mode = 'light'
 		MainWindow.setObjectName("MainWindow")
 		MainWindow.resize(800, 600)
@@ -166,43 +167,49 @@ class Ui_MainWindow(object):
 		icon13.addPixmap(QtGui.QPixmap("res/icons/bold.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
 		self.actionBold.setIcon(icon13)
 		self.actionBold.setObjectName("actionBold")
-		self.toolBar.addAction(self.actionBold)
+		
 		self.actionBold.setCheckable(True)
 		self.actionItalic = QAction(MainWindow)
 		icon14 = QtGui.QIcon()
 		icon14.addPixmap(QtGui.QPixmap("res/icons/italic.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
 		self.actionItalic.setIcon(icon14)
 		self.actionItalic.setObjectName("actionItalic")
-		self.toolBar.addAction(self.actionItalic)
 		self.actionItalic.setCheckable(True)
 		self.actionUnderline = QAction(MainWindow)
 		icon15 = QtGui.QIcon()
 		icon15.addPixmap(QtGui.QPixmap("res/icons/underline.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
 		self.actionUnderline.setIcon(icon15)
 		self.actionUnderline.setObjectName("actionUnderline")
-		self.toolBar.addAction(self.actionUnderline)
 		self.actionUnderline.setCheckable(True)
-		#################################
 		self.actionStatistics = QtWidgets.QAction(MainWindow)
 		icon16 = QtGui.QIcon()
 		icon16.addPixmap(QtGui.QPixmap("res/icons/stat.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
 		self.actionStatistics.setIcon(icon16)
 		self.actionStatistics.setObjectName("actionStatistics")
-		#################################
 		self.splitAction = QtWidgets.QAction(MainWindow)
 		icon17 = QtGui.QIcon()
 		icon17.addPixmap(QtGui.QPixmap("res/icons/split.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
 		self.splitAction.setIcon(icon17)
 		self.splitAction.setObjectName("splitAction")
-		self.toolBar.addAction(self.splitAction)
-		#################################
 		self.actionInsertImage = QtWidgets.QAction(MainWindow)
 		icon18 = QtGui.QIcon()
 		icon18.addPixmap(QtGui.QPixmap("res/icons/image.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
 		self.actionInsertImage.setIcon(icon18)
 		self.actionInsertImage.setObjectName("actionInsertImage")
-		self.toolBar.addAction(self.actionInsertImage)
 		#################################
+		self.actionFont = QAction(MainWindow)
+		self.actionFont.setObjectName("actionFont")
+		icon19 = QtGui.QIcon()
+		icon19.addPixmap(QtGui.QPixmap("res/icons/font.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+		self.actionFont.setIcon(icon19)
+		self.actionFont.setObjectName("actionFont") 
+		#################################
+		self.toolBar.addAction(self.actionFont)
+		self.toolBar.addAction(self.actionBold)
+		self.toolBar.addAction(self.actionItalic)
+		self.toolBar.addAction(self.actionUnderline)
+		self.toolBar.addAction(self.actionInsertImage)
+		self.toolBar.addAction(self.splitAction)
 		self.menuEdit.addAction(self.actionSearch)
 		self.toolBar.addAction(self.actionSearch)
 		self.menuFile.addAction(self.actionOpen)
@@ -296,7 +303,6 @@ class Ui_MainWindow(object):
 		self.filepath = ''
 		self.actionSearch.triggered.connect(self.search_text)
 		
-		self.actionNew.triggered.connect(self.textEdit.clear)
 		self.actionOpen.triggered.connect(self.openfile)
 
 		self.actionSave.triggered.connect(self.savefile)
@@ -320,6 +326,7 @@ class Ui_MainWindow(object):
 		self.actionStatistics.triggered.connect(self.show_statistics_dialog)
 		self.splitAction.triggered.connect(self.split_text_edit)
 		self.actionInsertImage.triggered.connect(self.insert_image)
+		self.actionFont.triggered.connect(self.choose_font)
 
 		
 
@@ -447,11 +454,12 @@ class Ui_MainWindow(object):
 	def set_dark_mode(self):
 		self.centralwidget.setStyleSheet("background-color: #333; color: #FFF;")
 		self.textEdit.setStyleSheet("background-color: #333; color: #FFF;")
-		self.menubar.setStyleSheet("background-color: #333; color: #FFF;")
+		self.menubar.setStyleSheet("background-color: #666; color: #FFF;")  # Đảo màu nền và màu chữ
 		self.statusbar.setStyleSheet("background-color: #333; color: #FFF;")
-		self.toolBar.setStyleSheet("background-color: #333;")
+		self.toolBar.setStyleSheet("background-color: #666; color: #FFF;")
 		for action in self.toolBar.actions():
 			action.setStyleSheet("color: #FFF;")
+
 
 
 	def set_light_mode(self):
@@ -484,15 +492,19 @@ class Ui_MainWindow(object):
 		word_count_check = QtWidgets.QCheckBox("Word Count")
 		char_count_check = QtWidgets.QCheckBox("Character Count")
 		line_count_check = QtWidgets.QCheckBox("Line Count")
+		font_check = QtWidgets.QCheckBox("Show Current Font")
 
 		# Thiết lập trạng thái ban đầu của các checkbox
 		word_count_check.setChecked(self.word_count_checked)
 		char_count_check.setChecked(self.char_count_checked)
 		line_count_check.setChecked(self.line_count_checked)
+		font_check.setChecked(self.show_font_checked)
+
 
 		layout.addWidget(word_count_check)
 		layout.addWidget(char_count_check)
 		layout.addWidget(line_count_check)
+		layout.addWidget(font_check)
 
 		button_box = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
 		button_box.accepted.connect(dialog.accept)
@@ -507,6 +519,7 @@ class Ui_MainWindow(object):
 			self.word_count_checked = word_count_check.isChecked()
 			self.char_count_checked = char_count_check.isChecked()
 			self.line_count_checked = line_count_check.isChecked()
+			self.show_font_checked = font_check.isChecked()
 
 			# Hiển thị hoặc ẩn các phần thống kê tương ứng
 			if self.word_count_checked:
@@ -523,6 +536,42 @@ class Ui_MainWindow(object):
 				self.lineCountLabel.show()
 			else:
 				self.lineCountLabel.hide()
+
+			# Hiển thị hoặc ẩn tên font hiện tại
+			if self.show_font_checked:
+				self.show_current_font(self.textEdit.currentFont())
+			else:
+				existing_widget = self.statusbar.findChild(QtWidgets.QLabel, "fontLabel")
+				if existing_widget:
+					existing_widget.deleteLater()
+	def show_current_font(self, font):
+		# Kiểm tra xem checkbox "Show Current Font" đã được chọn hay không
+		if not self.show_font_checked:
+			return  # Không hiển thị thông tin font nếu checkbox chưa được chọn
+
+		# Nếu font hiện tại là None, gán font là "Arial"
+		if font is None:
+			font = QtGui.QFont("Arial")
+
+		# Hiển thị tên font hiện tại ở góc trái notepad
+		font_info = "Current Font: " + font.family()
+
+		# Kiểm tra xem đã có một widget hiển thị tên font trước đó hay chưa
+		existing_widget = self.statusbar.findChild(QtWidgets.QLabel, "fontLabel")
+
+		if existing_widget:  # Nếu đã tồn tại widget
+			# Cập nhật nội dung của widget
+			existing_widget.setText(font_info)
+		else:
+			# Tạo một QLabel mới và hiển thị tên font
+			font_label = QtWidgets.QLabel(font_info)
+			font_label.setObjectName("fontLabel")  # Đặt tên cho widget để có thể tìm lại sau này
+			self.statusbar.insertWidget(0, font_label)
+	def hide_current_font(self):
+		# Tìm và xóa widget hiển thị tên font hiện tại
+		font_label = self.statusbar.findChild(QtWidgets.QLabel, "fontLabel")
+		if font_label:
+			font_label.deleteLater()
 
 	def split_text_edit(self):
 		if not self.split_state:  # Nếu đang ở trạng thái chưa chia đôi
@@ -588,6 +637,24 @@ class Ui_MainWindow(object):
 					file_path = url.toLocalFile()
 					if file_path.lower().endswith(('.png', '.jpg', '.bmp', '.gif')):
 						self.insert_image(file_path)
+	def choose_font(self):
+		# Hiển thị hộp thoại chọn font
+		font, ok = QFontDialog.getFont()
+		if ok:
+			# Lấy font mới từ hộp thoại và thiết lập font cho textEdit
+			self.textEdit.setCurrentFont(font)
+
+			# Hiển thị tên font hiện tại ở góc trái notepad
+			self.show_current_font(font)
+
+
+
+
+
+
+
+
+
 
 
 
@@ -596,8 +663,7 @@ import sys
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from notepad import Ui_MainWindow 
-
-
+import openai
 
 class MainScreen(QMainWindow):
     def __init__(self):
@@ -607,6 +673,37 @@ class MainScreen(QMainWindow):
         self.ui.textEdit.setAcceptDrops(True)
         self.ui.textEdit.dragEnterEvent = self.drag_enter_event
         self.ui.textEdit.dropEvent = self.drop_event
+        self.ui.actionNew.triggered.connect(self.new_notepad)
+
+        # Thiết lập OpenAI API key
+        openai.api_key = "sk-proj-ai1r5fNYuDwuRwlJtmQKT3BlbkFJGWU2NN8uftDxe7kbx7HZ"
+
+        # Tạo khung chat và nút gửi tin nhắn
+        self.chatbot_frame = QWidget(self)
+        self.chat_input = QLineEdit(self.chatbot_frame)
+        self.chat_button = QPushButton("Send", self.chatbot_frame)
+
+        # Tạo layout cho khung chat
+        hbox_chat = QHBoxLayout()
+        hbox_chat.addWidget(self.chat_input)
+        hbox_chat.addWidget(self.chat_button)
+        self.chatbot_frame.setLayout(hbox_chat)
+
+        # Tạo layout chính cho cửa sổ
+        vbox_main = QVBoxLayout()
+        vbox_main.addWidget(self.ui.textEdit)
+        vbox_main.addWidget(self.chatbot_frame)
+        self.ui.horizontalLayout.addLayout(vbox_main)
+
+        # Kết nối sự kiện clicked của nút gửi tin nhắn
+        self.chat_button.clicked.connect(self.send_message)
+
+        # Kết nối sự kiện enter của QLineEdit để gửi tin nhắn
+        self.chat_input.returnPressed.connect(self.send_message)
+
+    def new_notepad(self):
+        new_notepad = MainScreen()
+        new_notepad.show()
 
     def drag_enter_event(self, event):
         if event.mimeData().hasUrls():
@@ -636,6 +733,21 @@ class MainScreen(QMainWindow):
             # Chèn ảnh vào vị trí hiện tại của con trỏ
             cursor = self.ui.textEdit.textCursor()
             cursor.insertImage(image_format)
+
+    def send_message(self):
+        user_input = self.chat_input.text().strip()
+        if user_input:
+            response = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo-0125",
+                messages=[
+                    {"role": "system", "content": "You are a helpful assistant."},
+                    {"role": "user", "content": user_input}
+                ],
+                max_tokens=1000
+            )
+            text = response.choices[0].message["content"]
+            self.ui.textEdit.append(f"\nUser: {user_input}\nChatbot: {text}\n")
+            self.chat_input.clear()
 	
 
 		
