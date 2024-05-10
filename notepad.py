@@ -19,7 +19,8 @@ from PyQt5.QtGui import QTextImageFormat, QTextCursor, QTextLength
 from PyQt5.QtWidgets import QLabel
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QLabel, QVBoxLayout, QDialog, QSlider, QPushButton
-
+from PIL import Image
+import pytesseract
 class ImageSizeDialog(QDialog):
     def __init__(self, parent=None):
         super(ImageSizeDialog, self).__init__(parent)
@@ -66,7 +67,7 @@ class Ui_MainWindow(object):
 		self.show_font_checked = False
 		self.mode = 'light'
 		MainWindow.setObjectName("MainWindow")
-		MainWindow.resize(800, 600)
+		MainWindow.resize(1000, 800)
 		MainWindow.setWindowIcon(QtGui.QIcon('res/icons/text-editor2.png'))
 		self.centralwidget = QtWidgets.QWidget(MainWindow)
 		self.centralwidget.setObjectName("centralwidget")
@@ -204,11 +205,18 @@ class Ui_MainWindow(object):
 		self.actionFont.setIcon(icon19)
 		self.actionFont.setObjectName("actionFont") 
 		#################################
+		self.actionOCR = QtWidgets.QAction(MainWindow)
+		icon20 = QtGui.QIcon()
+		icon20.addPixmap(QtGui.QPixmap("res/icons/ocr.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+		self.actionOCR.setIcon(icon20)
+		self.actionOCR.setObjectName("actionOCR")
+		#################################
 		self.toolBar.addAction(self.actionFont)
 		self.toolBar.addAction(self.actionBold)
 		self.toolBar.addAction(self.actionItalic)
 		self.toolBar.addAction(self.actionUnderline)
 		self.toolBar.addAction(self.actionInsertImage)
+		self.toolBar.addAction(self.actionOCR)
 		self.toolBar.addAction(self.splitAction)
 		self.menuEdit.addAction(self.actionSearch)
 		self.toolBar.addAction(self.actionSearch)
@@ -327,6 +335,7 @@ class Ui_MainWindow(object):
 		self.splitAction.triggered.connect(self.split_text_edit)
 		self.actionInsertImage.triggered.connect(self.insert_image)
 		self.actionFont.triggered.connect(self.choose_font)
+		self.actionOCR.triggered.connect(self.perform_ocr)
 
 		
 
@@ -646,7 +655,20 @@ class Ui_MainWindow(object):
 
 			# Hiển thị tên font hiện tại ở góc trái notepad
 			self.show_current_font(font)
-
+	def perform_ocr(self):
+		# Open a file dialog to select an image
+		filename, _ = QFileDialog.getOpenFileName(None, "Select Image", "", "Image Files (*.png *.jpg *.bmp *.gif)")
+		
+		# Check if a file was selected
+		if filename:
+			# Use Pillow to open the image
+			image = Image.open(filename)
+			
+			# Use pytesseract to perform OCR on the image and extract text
+			extracted_text = pytesseract.image_to_string(image)
+			
+			# Append the extracted text to the text edit
+			self.textEdit.append(extracted_text)
 
 
 
@@ -663,7 +685,8 @@ import sys
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from notepad import Ui_MainWindow 
-import openai
+
+
 
 class MainScreen(QMainWindow):
     def __init__(self):
@@ -673,35 +696,11 @@ class MainScreen(QMainWindow):
         self.ui.textEdit.setAcceptDrops(True)
         self.ui.textEdit.dragEnterEvent = self.drag_enter_event
         self.ui.textEdit.dropEvent = self.drop_event
+		# Kết nối nút New với hàm new_notepad
         self.ui.actionNew.triggered.connect(self.new_notepad)
 
-        # Thiết lập OpenAI API key
-        openai.api_key = "sk-proj-ai1r5fNYuDwuRwlJtmQKT3BlbkFJGWU2NN8uftDxe7kbx7HZ"
-
-        # Tạo khung chat và nút gửi tin nhắn
-        self.chatbot_frame = QWidget(self)
-        self.chat_input = QLineEdit(self.chatbot_frame)
-        self.chat_button = QPushButton("Send", self.chatbot_frame)
-
-        # Tạo layout cho khung chat
-        hbox_chat = QHBoxLayout()
-        hbox_chat.addWidget(self.chat_input)
-        hbox_chat.addWidget(self.chat_button)
-        self.chatbot_frame.setLayout(hbox_chat)
-
-        # Tạo layout chính cho cửa sổ
-        vbox_main = QVBoxLayout()
-        vbox_main.addWidget(self.ui.textEdit)
-        vbox_main.addWidget(self.chatbot_frame)
-        self.ui.horizontalLayout.addLayout(vbox_main)
-
-        # Kết nối sự kiện clicked của nút gửi tin nhắn
-        self.chat_button.clicked.connect(self.send_message)
-
-        # Kết nối sự kiện enter của QLineEdit để gửi tin nhắn
-        self.chat_input.returnPressed.connect(self.send_message)
-
     def new_notepad(self):
+        # Tạo một cửa sổ notepad mới
         new_notepad = MainScreen()
         new_notepad.show()
 
@@ -733,21 +732,6 @@ class MainScreen(QMainWindow):
             # Chèn ảnh vào vị trí hiện tại của con trỏ
             cursor = self.ui.textEdit.textCursor()
             cursor.insertImage(image_format)
-
-    def send_message(self):
-        user_input = self.chat_input.text().strip()
-        if user_input:
-            response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo-0125",
-                messages=[
-                    {"role": "system", "content": "You are a helpful assistant."},
-                    {"role": "user", "content": user_input}
-                ],
-                max_tokens=1000
-            )
-            text = response.choices[0].message["content"]
-            self.ui.textEdit.append(f"\nUser: {user_input}\nChatbot: {text}\n")
-            self.chat_input.clear()
 	
 
 		
