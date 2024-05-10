@@ -9,12 +9,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up JDK
-        uses: actions/setup-java@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
         with:
-          java-version: '11'
+          python-version: '3.x'
+
+      - name: Install Checkstyle
+        run: |
+          pip install checkstyle
 
       - name: Run Checkstyle
         run: |
-          wget https://github.com/checkstyle/checkstyle/releases/download/checkstyle-8.46/checkstyle-8.46-all.jar -O checkstyle.jar
-          java -jar checkstyle.jar -c path/to/checkstyle.xml /workspaces/Note/code/Main.java
+          checkstyle -c path/to/checkstyle.xml /path/to/your/python/code
