@@ -211,12 +211,21 @@ class Ui_MainWindow(object):
 		self.actionOCR.setIcon(icon20)
 		self.actionOCR.setObjectName("actionOCR")
 		#################################
+		# Thêm nút chat vào thanh công cụ
+		self.chat_action = QtWidgets.QAction(MainWindow)
+		icon21 = QtGui.QIcon()
+		icon21.addPixmap(QtGui.QPixmap("res/icons/gpt.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+		self.chat_action.setIcon(icon21)
+		#################################
 		self.toolBar.addAction(self.actionFont)
 		self.toolBar.addAction(self.actionBold)
 		self.toolBar.addAction(self.actionItalic)
 		self.toolBar.addAction(self.actionUnderline)
 		self.toolBar.addAction(self.actionInsertImage)
+		self.toolBar.addSeparator()
+		self.toolBar.addAction(self.chat_action)
 		self.toolBar.addAction(self.actionOCR)
+		self.toolBar.addSeparator()
 		self.toolBar.addAction(self.splitAction)
 		self.menuEdit.addAction(self.actionSearch)
 		self.toolBar.addAction(self.actionSearch)
@@ -286,6 +295,30 @@ class Ui_MainWindow(object):
 		self.textEdit.dragEnterEvent = self.drag_enter_event
 		self.textEdit.dropEvent = self.drop_event
 		#########
+		openai.api_key = config.API_KEY
+		self.chatbot_frame = QWidget(self.centralwidget)
+		self.chat_input = QLineEdit(self.chatbot_frame)
+		self.chat_button = QPushButton("Send", self.chatbot_frame)
+
+		# Tạo layout chính cho cửa sổ
+		vbox_main = QVBoxLayout()
+		vbox_main.addWidget(self.textEdit)
+
+		# Tạo layout cho khung chat và nút gửi tin nhắn, nhưng ẩn nó ban đầu
+		self.chatbot_frame.hide()
+		hbox_chat = QHBoxLayout()
+		hbox_chat.addWidget(self.chat_input)
+		hbox_chat.addWidget(self.chat_button)
+		self.chatbot_frame.setLayout(hbox_chat)
+		vbox_main.addWidget(self.chatbot_frame)
+
+		self.horizontalLayout.addLayout(vbox_main)
+
+		# Kết nối sự kiện clicked của nút gửi tin nhắn
+		self.chat_button.clicked.connect(self.send_message)
+
+		# Kết nối sự kiện enter của QLineEdit để gửi tin nhắn
+		self.chat_input.returnPressed.connect(self.send_message)
 		#########
 
 	def retranslateUi(self, MainWindow):
@@ -336,11 +369,31 @@ class Ui_MainWindow(object):
 		self.actionInsertImage.triggered.connect(self.insert_image)
 		self.actionFont.triggered.connect(self.choose_font)
 		self.actionOCR.triggered.connect(self.perform_ocr)
+		self.chat_action.triggered.connect(self.toggle_chat)
 
 		
 
 		
 		self.actionMode.setCheckable(True)  # Cho phép nút chuyển đổi giữa hai trạng thái
+
+	def toggle_chat(self):
+		# Ẩn/hiện khung chat khi nút chat được nhấn
+		self.chatbot_frame.setVisible(not self.chatbot_frame.isVisible())
+
+	def send_message(self):
+		user_input = self.chat_input.text().strip()
+		if user_input:
+			response = openai.ChatCompletion.create(
+				model="gpt-3.5-turbo-0125",
+				messages=[
+					{"role": "system", "content": "You are a helpful assistant."},
+					{"role": "user", "content": user_input}
+				],
+				max_tokens=1000
+			)
+			text = response.choices[0].message["content"]
+			self.textEdit.append(f"\nUser: {user_input}\nChatbot: {text}\n")
+			self.chat_input.clear()
 	def toggle_bold(self):
 		if self.actionBold.isChecked():
 			self.textEdit.setFontWeight(QtGui.QFont.Bold)
@@ -698,32 +751,6 @@ class MainScreen(QMainWindow):
         self.ui.textEdit.dropEvent = self.drop_event
         self.ui.actionNew.triggered.connect(self.new_notepad)
 
-        # Thiết lập OpenAI API key
-        openai.api_key = config.API_KEY
-
-        # Tạo khung chat và nút gửi tin nhắn
-        self.chatbot_frame = QWidget(self)
-        self.chat_input = QLineEdit(self.chatbot_frame)
-        self.chat_button = QPushButton("Send", self.chatbot_frame)
-
-        # Tạo layout cho khung chat
-        hbox_chat = QHBoxLayout()
-        hbox_chat.addWidget(self.chat_input)
-        hbox_chat.addWidget(self.chat_button)
-        self.chatbot_frame.setLayout(hbox_chat)
-
-        # Tạo layout chính cho cửa sổ
-        vbox_main = QVBoxLayout()
-        vbox_main.addWidget(self.ui.textEdit)
-        vbox_main.addWidget(self.chatbot_frame)
-        self.ui.horizontalLayout.addLayout(vbox_main)
-
-        # Kết nối sự kiện clicked của nút gửi tin nhắn
-        self.chat_button.clicked.connect(self.send_message)
-
-        # Kết nối sự kiện enter của QLineEdit để gửi tin nhắn
-        self.chat_input.returnPressed.connect(self.send_message)
-
     def new_notepad(self):
         new_notepad = MainScreen()
         new_notepad.show()
@@ -756,22 +783,6 @@ class MainScreen(QMainWindow):
             # Chèn ảnh vào vị trí hiện tại của con trỏ
             cursor = self.ui.textEdit.textCursor()
             cursor.insertImage(image_format)
-
-    def send_message(self):
-        user_input = self.chat_input.text().strip()
-        if user_input:
-            response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo-0125",
-                messages=[
-                    {"role": "system", "content": "You are a helpful assistant."},
-                    {"role": "user", "content": user_input}
-                ],
-                max_tokens=1000
-            )
-            text = response.choices[0].message["content"]
-            self.ui.textEdit.append(f"\nUser: {user_input}\nChatbot: {text}\n")
-            self.chat_input.clear()
-	
 	
 
 		
