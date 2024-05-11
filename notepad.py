@@ -678,38 +678,28 @@ class Ui_MainWindow(object):
 	def set_text_color(self, color):
 		cursor = self.textEdit.textCursor()
 		cursor.select(QtGui.QTextCursor.Document)
-		format = QtGui.QTextCharFormat()
 
-		# Lấy format hiện tại của văn bản
-		current_format = cursor.charFormat()
-
-		# Thiết lập màu chữ cho format mới
-		format.setForeground(current_format.foreground())
-
-		# Kiểm tra trạng thái của hộp kiểm "Check Spelling"
-		spelling_enabled = self.spell_check_checked
-
-		# Lưu lại màu chữ của từng ký tự
-		text = self.textEdit.toPlainText()
-		cursor_position = 0
-		while cursor_position < len(text):
-			cursor.setPosition(cursor_position)
-			cursor.movePosition(QtGui.QTextCursor.Right, QtGui.QTextCursor.KeepAnchor)
+		# Lặp qua từng ký tự trong văn bản
+		for pos in range(cursor.selectionStart(), cursor.selectionEnd()):
+			cursor.setPosition(pos)
+			cursor.movePosition(QtGui.QTextCursor.Right, QtGui.QTextCursor.KeepAnchor, 1)
+			
+			# Lấy format của ký tự hiện tại
 			char_format = cursor.charFormat()
-			if char_format.hasProperty(QtGui.QTextFormat.ForegroundBrush):
-				char_color = char_format.foreground().color()
-				format.setForeground(char_color)
-				cursor.setCharFormat(format)
-			cursor_position += len(cursor.selectedText())
+			
+			# Kiểm tra trạng thái của hộp kiểm "Check Spelling"
+			spelling_enabled = self.spell_check_checked
 
-		# Nếu kiểm tra chính tả đang được bật, áp dụng gạch chân nhiễu
-		if spelling_enabled:
-			format.setUnderlineStyle(QtGui.QTextCharFormat.SpellCheckUnderline)
-		else:
-			# Nếu kiểm tra chính tả được tắt, loại bỏ gạch chân nhiễu
-			format.setUnderlineStyle(QtGui.QTextCharFormat.NoUnderline)
+			# Nếu kiểm tra chính tả đang được bật, áp dụng gạch chân nhiễu
+			if spelling_enabled:
+				char_format.setUnderlineStyle(QtGui.QTextCharFormat.SpellCheckUnderline)
+			else:
+				# Nếu kiểm tra chính tả được tắt, loại bỏ gạch chân nhiễu
+				char_format.setUnderlineStyle(QtGui.QTextCharFormat.NoUnderline)
 
-		cursor.setCharFormat(format)
+			# Áp dụng lại format cho ký tự
+			cursor.setCharFormat(char_format)
+
 
 
 
