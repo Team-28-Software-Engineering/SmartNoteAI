@@ -5,7 +5,7 @@
 # Created by: PyQt5 UI code generator 5.5.1
 #
 # WARNING! All changes made in this file will be lost!
-
+from pydub import AudioSegment
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QFileDialog, QMessageBox
 from about import Ui_Dialog 
@@ -19,7 +19,62 @@ from PyQt5.QtGui import QTextImageFormat, QTextCursor, QTextLength
 from PyQt5.QtWidgets import QLabel
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QLabel, QVBoxLayout, QDialog, QSlider, QPushButton
+from PIL import Image
+import pytesseract
+import speech_recognition as sr
+import enchant
+from PyQt5.QtCore import QTimer
+import googletrans
+from googletrans import Translator
+from PyQt5.QtWidgets import QInputDialog, QComboBox
+from googletrans import LANGUAGES
 
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QComboBox, QPushButton, QLabel
+
+class LanguageDialog(QDialog):
+    def __init__(self, current_language_code, target_language_code, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Translate Text")
+        self.current_language_code = current_language_code
+        self.target_language_code = target_language_code
+
+        layout = QVBoxLayout()
+
+        # Label cho ngôn ngữ hiện tại
+        self.current_language_label = QLabel("Current Language:")
+        layout.addWidget(self.current_language_label)
+
+        # Combobox cho ngôn ngữ hiện tại
+        self.current_language_combo = QComboBox()
+        self.current_language_combo.addItem("Auto-detect", "auto")  # Sử dụng "Auto-detect" thay vì "auto"
+        for lang_code, lang_name in LANGUAGES.items():
+            self.current_language_combo.addItem(lang_name, lang_code)
+        self.current_language_combo.setCurrentText("Auto-detect")  # Đặt "Auto-detect" làm giá trị mặc định
+        layout.addWidget(self.current_language_combo)
+
+        # Label cho ngôn ngữ muốn dịch sang
+        self.target_language_label = QLabel("Translate to:")
+        layout.addWidget(self.target_language_label)
+
+        # Combobox cho ngôn ngữ muốn dịch sang
+        self.target_language_combo = QComboBox()
+        for lang_code, lang_name in LANGUAGES.items():
+            self.target_language_combo.addItem(lang_name, lang_code)
+        self.target_language_combo.setCurrentText(LANGUAGES[target_language_code])
+        layout.addWidget(self.target_language_combo)
+
+        # Nút OK
+        self.ok_button = QPushButton("OK")
+        self.ok_button.clicked.connect(self.accept)
+        layout.addWidget(self.ok_button)
+
+        self.setLayout(layout)
+
+    def get_current_language_code(self):
+        return self.current_language_combo.currentData()
+
+    def get_target_language_code(self):
+        return self.target_language_combo.currentData()
 class ImageSizeDialog(QDialog):
     def __init__(self, parent=None):
         super(ImageSizeDialog, self).__init__(parent)
@@ -59,14 +114,18 @@ class Ui_MainWindow(object):
 
 
 	def setupUi(self, MainWindow):
-		self.split_state = False
+		self.current_language_code = "auto"  # Giá trị mặc định cho ngôn ngữ hiện tại
+		self.target_language_code = "en" 
+		self.currentFontColor = QtGui.QColor(QtCore.Qt.black)
+		self.currentHighlightColor = QtGui.QColor(QtCore.Qt.yellow)
 		self.word_count_checked = True
 		self.char_count_checked = True
 		self.line_count_checked = True
 		self.show_font_checked = False
+		self.spell_check_checked = True
 		self.mode = 'light'
 		MainWindow.setObjectName("MainWindow")
-		MainWindow.resize(800, 600)
+		MainWindow.resize(1000, 800)
 		MainWindow.setWindowIcon(QtGui.QIcon('res/icons/text-editor2.png'))
 		self.centralwidget = QtWidgets.QWidget(MainWindow)
 		self.centralwidget.setObjectName("centralwidget")
@@ -186,30 +245,66 @@ class Ui_MainWindow(object):
 		icon16.addPixmap(QtGui.QPixmap("res/icons/stat.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
 		self.actionStatistics.setIcon(icon16)
 		self.actionStatistics.setObjectName("actionStatistics")
-		self.splitAction = QtWidgets.QAction(MainWindow)
-		icon17 = QtGui.QIcon()
-		icon17.addPixmap(QtGui.QPixmap("res/icons/split.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-		self.splitAction.setIcon(icon17)
-		self.splitAction.setObjectName("splitAction")
+		#########################
+		self.actionTranslate = QAction(MainWindow)
+		icon_translate = QtGui.QIcon()
+		icon_translate.addPixmap(QtGui.QPixmap("res/icons/translate.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+		self.actionTranslate.setIcon(icon_translate)
+		self.actionTranslate.setObjectName("actionTranslate")
+		#########################
 		self.actionInsertImage = QtWidgets.QAction(MainWindow)
 		icon18 = QtGui.QIcon()
 		icon18.addPixmap(QtGui.QPixmap("res/icons/image.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
 		self.actionInsertImage.setIcon(icon18)
 		self.actionInsertImage.setObjectName("actionInsertImage")
-		#################################
 		self.actionFont = QAction(MainWindow)
 		self.actionFont.setObjectName("actionFont")
 		icon19 = QtGui.QIcon()
 		icon19.addPixmap(QtGui.QPixmap("res/icons/font.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
 		self.actionFont.setIcon(icon19)
 		self.actionFont.setObjectName("actionFont") 
+		self.actionOCR = QtWidgets.QAction(MainWindow)
+		icon20 = QtGui.QIcon()
+		icon20.addPixmap(QtGui.QPixmap("res/icons/ocr.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+		self.actionOCR.setIcon(icon20)
+		self.actionOCR.setObjectName("actionOCR")
+		self.chat_action = QtWidgets.QAction(MainWindow)
+		icon21 = QtGui.QIcon()
+		icon21.addPixmap(QtGui.QPixmap("res/icons/gpt.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+		self.chat_action.setIcon(icon21)
 		#################################
+		self.actionAudio_to_Text = QtWidgets.QAction(MainWindow)
+		icon22 = QtGui.QIcon()
+		icon22.addPixmap(QtGui.QPixmap("res/icons/audio2text.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+		self.actionAudio_to_Text.setIcon(icon22)
+		self.actionAudio_to_Text.setObjectName("actionAudio_to_Text")
+		#################################
+		#################################
+		self.actionFontColor = QtWidgets.QAction(MainWindow)
+		icon_fontcolor = QtGui.QIcon()
+		icon_fontcolor.addPixmap(QtGui.QPixmap("res/icons/fontcolor.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+		self.actionFontColor.setIcon(icon_fontcolor)
+		self.actionFontColor.setObjectName("actionFontColor")
+
+		self.actionHighlight = QtWidgets.QAction(MainWindow)
+		icon_highlight = QtGui.QIcon()
+		icon_highlight.addPixmap(QtGui.QPixmap("res/icons/highlight.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+		self.actionHighlight.setIcon(icon_highlight)
+		self.actionHighlight.setObjectName("actionHighlight")
+		#################################
+		self.toolBar.addAction(self.actionFontColor)
+		self.toolBar.addAction(self.actionHighlight)
 		self.toolBar.addAction(self.actionFont)
 		self.toolBar.addAction(self.actionBold)
 		self.toolBar.addAction(self.actionItalic)
 		self.toolBar.addAction(self.actionUnderline)
 		self.toolBar.addAction(self.actionInsertImage)
-		self.toolBar.addAction(self.splitAction)
+		self.toolBar.addSeparator()
+		self.toolBar.addAction(self.actionTranslate)
+		self.toolBar.addAction(self.chat_action)
+		self.toolBar.addAction(self.actionOCR)
+		self.toolBar.addAction(self.actionAudio_to_Text)
+		self.toolBar.addSeparator()
 		self.menuEdit.addAction(self.actionSearch)
 		self.toolBar.addAction(self.actionSearch)
 		self.menuFile.addAction(self.actionOpen)
@@ -278,6 +373,42 @@ class Ui_MainWindow(object):
 		self.textEdit.dragEnterEvent = self.drag_enter_event
 		self.textEdit.dropEvent = self.drop_event
 		#########
+		openai.api_key = config.API_KEY
+		self.chatbot_frame = QWidget(self.centralwidget)
+		self.chat_input = QLineEdit(self.chatbot_frame)
+		self.chat_button = QPushButton("Send", self.chatbot_frame)
+
+		# Tạo layout chính cho cửa sổ
+		vbox_main = QVBoxLayout()
+		vbox_main.addWidget(self.textEdit)
+
+		# Tạo layout cho khung chat và nút gửi tin nhắn, nhưng ẩn nó ban đầu
+		self.chatbot_frame.hide()
+		hbox_chat = QHBoxLayout()
+		hbox_chat.addWidget(self.chat_input)
+		hbox_chat.addWidget(self.chat_button)
+		self.chatbot_frame.setLayout(hbox_chat)
+		vbox_main.addWidget(self.chatbot_frame)
+
+		self.horizontalLayout.addLayout(vbox_main)
+
+		# Kết nối sự kiện clicked của nút gửi tin nhắn
+		self.chat_button.clicked.connect(self.send_message)
+
+		# Kết nối sự kiện enter của QLineEdit để gửi tin nhắn
+		self.chat_input.returnPressed.connect(self.send_message)
+		#########
+		# Khởi tạo enchant dictionary
+		self.spell_checker = enchant.Dict("en_US")
+
+		# Tạo một QTimer để kiểm tra lỗi chính tả sau một khoảng thời gian chờ
+		self.spell_check_timer = QTimer()
+		self.spell_check_timer.timeout.connect(self.check_spelling)
+
+		# Kết nối sự kiện văn bản thay đổi để bắt đầu kiểm tra chính tả
+		self.textEdit.textChanged.connect(self.start_spell_check_timer)
+		#########
+		
 		#########
 
 	def retranslateUi(self, MainWindow):
@@ -299,6 +430,8 @@ class Ui_MainWindow(object):
 		self.actionAbout_Notepad.setText(_translate("MainWindow", "About Notepad"))
 		self.actionSearch.setText(_translate("MainWindow", "Search"))
 		self.actionExit.setText(_translate("MainWindow", "Exit"))
+		self.actionFontColor.setText(_translate("MainWindow", "Font Color"))
+		self.actionHighlight.setText(_translate("MainWindow", "Highlight"))
 
 		self.filepath = ''
 		self.actionSearch.triggered.connect(self.search_text)
@@ -324,14 +457,47 @@ class Ui_MainWindow(object):
 		self.actionUnderline.triggered.connect(self.toggle_underline)
 		self.actionAbout_Notepad.triggered.connect(self.aboutapp)
 		self.actionStatistics.triggered.connect(self.show_statistics_dialog)
-		self.splitAction.triggered.connect(self.split_text_edit)
 		self.actionInsertImage.triggered.connect(self.insert_image)
 		self.actionFont.triggered.connect(self.choose_font)
-
-		
+		self.actionOCR.triggered.connect(self.perform_ocr)
+		self.chat_action.triggered.connect(self.toggle_chat)
+		self.actionAudio_to_Text.triggered.connect(self.audio_to_text)
+		self.actionFontColor.triggered.connect(self.fontColor)
+		self.actionHighlight.triggered.connect(self.highlight)
+		self.actionTranslate.triggered.connect(self.translate_text)
 
 		
 		self.actionMode.setCheckable(True)  # Cho phép nút chuyển đổi giữa hai trạng thái
+
+	def toggle_chat(self):
+		# Ẩn/hiện khung chat khi nút chat được nhấn
+		self.chatbot_frame.setVisible(not self.chatbot_frame.isVisible())
+
+	def send_message(self):
+		user_input = self.chat_input.text().strip()
+		if user_input:
+			response = openai.ChatCompletion.create(
+				model="gpt-3.5-turbo-0125",
+				messages=[
+					{"role": "system", "content": "You are a helpful assistant."},
+					{"role": "user", "content": user_input}
+				],
+				max_tokens=1000
+			)
+			text = response.choices[0].message["content"]
+			self.textEdit.append(f"\nUser: {user_input}\nChatbot: {text}\n")
+			self.chat_input.clear()
+	def fontColor(self):
+		color = QtWidgets.QColorDialog.getColor(self.currentFontColor)
+		if color.isValid():
+			self.currentFontColor = color
+			self.textEdit.setTextColor(color)
+
+	def highlight(self):
+		color = QtWidgets.QColorDialog.getColor(self.currentHighlightColor)
+		if color.isValid():
+			self.currentHighlightColor = color
+			self.textEdit.setTextBackgroundColor(color)
 	def toggle_bold(self):
 		if self.actionBold.isChecked():
 			self.textEdit.setFontWeight(QtGui.QFont.Bold)
@@ -428,7 +594,15 @@ class Ui_MainWindow(object):
 
 	
 	def exitapp(self):
-		exit()
+		reply = QMessageBox.question(None, 'Message', 'Do you want to save the file before exiting?', QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel)
+
+		if reply == QMessageBox.Yes:
+			self.savefile()
+			exit()
+		elif reply == QMessageBox.No:
+			exit()
+		else:
+			pass
 
 
 	def aboutapp(self):
@@ -493,18 +667,20 @@ class Ui_MainWindow(object):
 		char_count_check = QtWidgets.QCheckBox("Character Count")
 		line_count_check = QtWidgets.QCheckBox("Line Count")
 		font_check = QtWidgets.QCheckBox("Show Current Font")
+		spell_check_check = QtWidgets.QCheckBox("Check Spelling")
 
 		# Thiết lập trạng thái ban đầu của các checkbox
 		word_count_check.setChecked(self.word_count_checked)
 		char_count_check.setChecked(self.char_count_checked)
 		line_count_check.setChecked(self.line_count_checked)
 		font_check.setChecked(self.show_font_checked)
-
+		spell_check_check.setChecked(self.spell_check_checked)
 
 		layout.addWidget(word_count_check)
 		layout.addWidget(char_count_check)
 		layout.addWidget(line_count_check)
 		layout.addWidget(font_check)
+		layout.addWidget(spell_check_check)
 
 		button_box = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
 		button_box.accepted.connect(dialog.accept)
@@ -520,6 +696,7 @@ class Ui_MainWindow(object):
 			self.char_count_checked = char_count_check.isChecked()
 			self.line_count_checked = line_count_check.isChecked()
 			self.show_font_checked = font_check.isChecked()
+			self.spell_check_checked = spell_check_check.isChecked()
 
 			# Hiển thị hoặc ẩn các phần thống kê tương ứng
 			if self.word_count_checked:
@@ -544,6 +721,42 @@ class Ui_MainWindow(object):
 				existing_widget = self.statusbar.findChild(QtWidgets.QLabel, "fontLabel")
 				if existing_widget:
 					existing_widget.deleteLater()
+
+			# Bật hoặc tắt kiểm tra chính tả
+			if self.spell_check_checked:
+				self.start_spell_check_timer()
+			else:
+				self.stop_spell_check_timer()
+				# Set text color to black when spell check is disabled
+				self.set_text_color(Qt.black)
+	def set_text_color(self, color):
+		cursor = self.textEdit.textCursor()
+		cursor.select(QtGui.QTextCursor.Document)
+
+		# Lặp qua từng ký tự trong văn bản
+		for pos in range(cursor.selectionStart(), cursor.selectionEnd()):
+			cursor.setPosition(pos)
+			cursor.movePosition(QtGui.QTextCursor.Right, QtGui.QTextCursor.KeepAnchor, 1)
+			
+			# Lấy format của ký tự hiện tại
+			char_format = cursor.charFormat()
+			
+			# Kiểm tra trạng thái của hộp kiểm "Check Spelling"
+			spelling_enabled = self.spell_check_checked
+
+			# Nếu kiểm tra chính tả đang được bật, áp dụng gạch chân nhiễu
+			if spelling_enabled:
+				char_format.setUnderlineStyle(QtGui.QTextCharFormat.SpellCheckUnderline)
+			else:
+				# Nếu kiểm tra chính tả được tắt, loại bỏ gạch chân nhiễu
+				char_format.setUnderlineStyle(QtGui.QTextCharFormat.NoUnderline)
+
+			# Áp dụng lại format cho ký tự
+			cursor.setCharFormat(char_format)
+
+
+
+
 	def show_current_font(self, font):
 		# Kiểm tra xem checkbox "Show Current Font" đã được chọn hay không
 		if not self.show_font_checked:
@@ -573,38 +786,6 @@ class Ui_MainWindow(object):
 		if font_label:
 			font_label.deleteLater()
 
-	def split_text_edit(self):
-		if not self.split_state:  # Nếu đang ở trạng thái chưa chia đôi
-			# Tạo một QSplitter mới
-			self.splitter = QSplitter(Qt.Horizontal)  # Sử dụng Qt.Vertical nếu muốn chia theo chiều dọc
-			
-			# Di chuyển textEdit hiện tại vào QSplitter
-			self.horizontalLayout.removeWidget(self.textEdit)
-			self.splitter.addWidget(self.textEdit)
-
-			# Tạo một QTextEdit mới
-			self.textEdit2 = QtWidgets.QTextEdit(self.centralwidget)
-			self.textEdit2.setObjectName("textEdit2")
-			self.splitter.addWidget(self.textEdit2)
-
-			# Thêm QSplitter vào horizontalLayout
-			self.horizontalLayout.addWidget(self.splitter)
-
-			self.split_state = True  # Cập nhật trạng thái đã chia đôi
-
-		else:  # Nếu đang ở trạng thái đã chia đôi
-			# Xóa QTextEdit thứ hai và QSplitter khỏi horizontalLayout
-			self.horizontalLayout.removeWidget(self.textEdit2)
-			self.horizontalLayout.removeWidget(self.splitter)
-
-			# Loại bỏ các widget từ QSplitter để tránh bị rò rỉ bộ nhớ
-			self.splitter.deleteLater()
-			self.textEdit2.deleteLater()
-
-			# Thêm lại textEdit vào horizontalLayout
-			self.horizontalLayout.addWidget(self.textEdit)
-
-			self.split_state = False  # Cập nhật trạng thái chưa chia đôi
 	def insert_image(self):
 		# Mở hộp thoại để chọn tệp ảnh
 		filename, _ = QFileDialog.getOpenFileName(None, "Select Image", "", "Image Files (*.png *.jpg *.bmp *.gif)")
@@ -646,6 +827,122 @@ class Ui_MainWindow(object):
 
 			# Hiển thị tên font hiện tại ở góc trái notepad
 			self.show_current_font(font)
+	def perform_ocr(self):
+		# Open a file dialog to select an image
+		filename, _ = QFileDialog.getOpenFileName(None, "Select Image", "", "Image Files (*.png *.jpg *.bmp *.gif)")
+		
+		# Check if a file was selected
+		if filename:
+			# Use Pillow to open the image
+			image = Image.open(filename)
+			
+			# Use pytesseract to perform OCR on the image and extract text
+			extracted_text = pytesseract.image_to_string(image)
+			
+			# Append the extracted text to the text edit
+			self.textEdit.append(extracted_text)
+	def audio_to_text(self):
+		# Mở cửa sổ để chọn file âm thanh
+		filename, _ = QFileDialog.getOpenFileName(None, "Select Audio File", "", "Audio Files (*.wav *.mp3)")
+
+		if filename == "":
+			return
+
+		try:
+			# Chuyển đổi file mp3 thành WAV để nhận dạng âm thanh
+			sound = AudioSegment.from_mp3(filename)
+			filename_wav = filename[:-4] + ".wav"
+			sound.export(filename_wav, format="wav")
+
+			# Sử dụng thư viện SpeechRecognition để nhận dạng âm thanh
+			recognizer = sr.Recognizer()
+			with sr.AudioFile(filename_wav) as source:
+				audio_data = recognizer.record(source)
+				text = recognizer.recognize_google(audio_data)
+
+			# Thêm văn bản nhận dạng được vào cuối textEdit
+			self.textEdit.moveCursor(QtGui.QTextCursor.End)
+			self.textEdit.insertPlainText(text)
+
+		except Exception as e:
+			# Nếu có lỗi, thông báo cho người dùng
+			QMessageBox.warning(None, "Error", str(e))
+
+	def start_spell_check_timer(self):
+		if self.spell_check_checked:
+			self.spell_check_timer.start(1000) 
+	def stop_spell_check_timer(self):
+		self.spell_check_timer.stop() 
+
+	def check_spelling(self):
+		self.spell_check_timer.stop()  # Dừng bộ đếm thời gian
+		cursor = self.textEdit.textCursor()
+		cursor_pos = cursor.position()  # Lưu lại vị trí của con trỏ
+
+		# Lấy văn bản trong textEdit
+		text = self.textEdit.toPlainText()
+
+		# Tạo một danh sách để lưu trữ màu chữ của từng phần văn bản
+		char_formats = []
+
+		# Tách văn bản thành các từ và kiểm tra chính tả
+		for start_pos, end_pos, word in self.iterate_words(text):
+			if not self.spell_checker.check(word):
+				# Nếu từ không đúng chính tả, lưu màu chữ hiện tại và áp dụng gạch chân nhiễu
+				cursor.setPosition(start_pos)
+				cursor.movePosition(QtGui.QTextCursor.Right, QtGui.QTextCursor.KeepAnchor, end_pos - start_pos)
+				char_format = cursor.charFormat()
+				char_formats.append((start_pos, char_format.foreground()))  # Lưu trữ màu chữ hiện tại
+				char_format.setUnderlineStyle(QtGui.QTextCharFormat.SpellCheckUnderline)
+				char_format.setUnderlineColor(Qt.red)  # Đặt màu gạch chân nhiễu là màu đỏ
+				cursor.setCharFormat(char_format)
+			else:
+				char_formats.append(None)  # Không áp dụng gạch chân nhiễu, để màu chữ không thay đổi
+
+		# Khôi phục màu chữ ban đầu cho các từ không cần áp dụng gạch chân nhiễu
+		for i, char_format in enumerate(char_formats):
+			if char_format is None:
+				continue
+			start_pos, color = char_format
+			cursor.setPosition(start_pos)
+			cursor.movePosition(QtGui.QTextCursor.Right, QtGui.QTextCursor.KeepAnchor, 1)
+			char_format = cursor.charFormat()
+			char_format.setForeground(color)  # Thiết lập màu chữ trở lại
+			cursor.setCharFormat(char_format)
+
+		# Khôi phục vị trí của con trỏ
+		cursor.setPosition(cursor_pos)
+
+
+
+	def iterate_words(self, text):
+		"""
+		Hàm này tách văn bản thành các từ và trả về vị trí bắt đầu và kết thúc của từ trong văn bản cùng với từ đó.
+		"""
+		in_word = False
+		start_pos = 0
+		for pos, char in enumerate(text):
+			if char.isalnum():
+				if not in_word:
+					start_pos = pos
+					in_word = True
+			else:
+				if in_word:
+					yield start_pos, pos, text[start_pos:pos]
+					in_word = False
+		if in_word:
+			yield start_pos, len(text), text[start_pos:]
+	def translate_text(self):
+		dialog = LanguageDialog(self.current_language_code, self.target_language_code)
+		
+		if dialog.exec_() == QDialog.Accepted:
+			self.current_language_code = dialog.get_current_language_code()
+			self.target_language_code = dialog.get_target_language_code()
+			translator = Translator()
+			current_text = self.textEdit.toPlainText()
+			translated_text = translator.translate(current_text, src=self.current_language_code, dest=self.target_language_code).text
+			self.textEdit.setText(translated_text)
+	
 
 
 
@@ -664,6 +961,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from notepad import Ui_MainWindow 
 import openai
+import config
 
 class MainScreen(QMainWindow):
     def __init__(self):
@@ -674,32 +972,6 @@ class MainScreen(QMainWindow):
         self.ui.textEdit.dragEnterEvent = self.drag_enter_event
         self.ui.textEdit.dropEvent = self.drop_event
         self.ui.actionNew.triggered.connect(self.new_notepad)
-
-        # Thiết lập OpenAI API key
-        openai.api_key = "sk-proj-ai1r5fNYuDwuRwlJtmQKT3BlbkFJGWU2NN8uftDxe7kbx7HZ"
-
-        # Tạo khung chat và nút gửi tin nhắn
-        self.chatbot_frame = QWidget(self)
-        self.chat_input = QLineEdit(self.chatbot_frame)
-        self.chat_button = QPushButton("Send", self.chatbot_frame)
-
-        # Tạo layout cho khung chat
-        hbox_chat = QHBoxLayout()
-        hbox_chat.addWidget(self.chat_input)
-        hbox_chat.addWidget(self.chat_button)
-        self.chatbot_frame.setLayout(hbox_chat)
-
-        # Tạo layout chính cho cửa sổ
-        vbox_main = QVBoxLayout()
-        vbox_main.addWidget(self.ui.textEdit)
-        vbox_main.addWidget(self.chatbot_frame)
-        self.ui.horizontalLayout.addLayout(vbox_main)
-
-        # Kết nối sự kiện clicked của nút gửi tin nhắn
-        self.chat_button.clicked.connect(self.send_message)
-
-        # Kết nối sự kiện enter của QLineEdit để gửi tin nhắn
-        self.chat_input.returnPressed.connect(self.send_message)
 
     def new_notepad(self):
         new_notepad = MainScreen()
@@ -733,21 +1005,6 @@ class MainScreen(QMainWindow):
             # Chèn ảnh vào vị trí hiện tại của con trỏ
             cursor = self.ui.textEdit.textCursor()
             cursor.insertImage(image_format)
-
-    def send_message(self):
-        user_input = self.chat_input.text().strip()
-        if user_input:
-            response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo-0125",
-                messages=[
-                    {"role": "system", "content": "You are a helpful assistant."},
-                    {"role": "user", "content": user_input}
-                ],
-                max_tokens=1000
-            )
-            text = response.choices[0].message["content"]
-            self.ui.textEdit.append(f"\nUser: {user_input}\nChatbot: {text}\n")
-            self.chat_input.clear()
 	
 
 		
