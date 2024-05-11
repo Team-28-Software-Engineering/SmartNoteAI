@@ -24,6 +24,57 @@ import pytesseract
 import speech_recognition as sr
 import enchant
 from PyQt5.QtCore import QTimer
+import googletrans
+from googletrans import Translator
+from PyQt5.QtWidgets import QInputDialog, QComboBox
+from googletrans import LANGUAGES
+
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QComboBox, QPushButton, QLabel
+
+class LanguageDialog(QDialog):
+    def __init__(self, current_language_code, target_language_code, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Translate Text")
+        self.current_language_code = current_language_code
+        self.target_language_code = target_language_code
+
+        layout = QVBoxLayout()
+
+        # Label cho ngôn ngữ hiện tại
+        self.current_language_label = QLabel("Current Language:")
+        layout.addWidget(self.current_language_label)
+
+        # Combobox cho ngôn ngữ hiện tại
+        self.current_language_combo = QComboBox()
+        self.current_language_combo.addItem("Auto-detect", "auto")  # Sử dụng "Auto-detect" thay vì "auto"
+        for lang_code, lang_name in LANGUAGES.items():
+            self.current_language_combo.addItem(lang_name, lang_code)
+        self.current_language_combo.setCurrentText("Auto-detect")  # Đặt "Auto-detect" làm giá trị mặc định
+        layout.addWidget(self.current_language_combo)
+
+        # Label cho ngôn ngữ muốn dịch sang
+        self.target_language_label = QLabel("Translate to:")
+        layout.addWidget(self.target_language_label)
+
+        # Combobox cho ngôn ngữ muốn dịch sang
+        self.target_language_combo = QComboBox()
+        for lang_code, lang_name in LANGUAGES.items():
+            self.target_language_combo.addItem(lang_name, lang_code)
+        self.target_language_combo.setCurrentText(LANGUAGES[target_language_code])
+        layout.addWidget(self.target_language_combo)
+
+        # Nút OK
+        self.ok_button = QPushButton("OK")
+        self.ok_button.clicked.connect(self.accept)
+        layout.addWidget(self.ok_button)
+
+        self.setLayout(layout)
+
+    def get_current_language_code(self):
+        return self.current_language_combo.currentData()
+
+    def get_target_language_code(self):
+        return self.target_language_combo.currentData()
 class ImageSizeDialog(QDialog):
     def __init__(self, parent=None):
         super(ImageSizeDialog, self).__init__(parent)
@@ -63,9 +114,10 @@ class Ui_MainWindow(object):
 
 
 	def setupUi(self, MainWindow):
+		self.current_language_code = "auto"  # Giá trị mặc định cho ngôn ngữ hiện tại
+		self.target_language_code = "en" 
 		self.currentFontColor = QtGui.QColor(QtCore.Qt.black)
 		self.currentHighlightColor = QtGui.QColor(QtCore.Qt.yellow)
-		self.split_state = False
 		self.word_count_checked = True
 		self.char_count_checked = True
 		self.line_count_checked = True
@@ -193,11 +245,13 @@ class Ui_MainWindow(object):
 		icon16.addPixmap(QtGui.QPixmap("res/icons/stat.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
 		self.actionStatistics.setIcon(icon16)
 		self.actionStatistics.setObjectName("actionStatistics")
-		self.splitAction = QtWidgets.QAction(MainWindow)
-		icon17 = QtGui.QIcon()
-		icon17.addPixmap(QtGui.QPixmap("res/icons/split.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-		self.splitAction.setIcon(icon17)
-		self.splitAction.setObjectName("splitAction")
+		#########################
+		self.actionTranslate = QAction(MainWindow)
+		icon_translate = QtGui.QIcon()
+		icon_translate.addPixmap(QtGui.QPixmap("res/icons/translate.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+		self.actionTranslate.setIcon(icon_translate)
+		self.actionTranslate.setObjectName("actionTranslate")
+		#########################
 		self.actionInsertImage = QtWidgets.QAction(MainWindow)
 		icon18 = QtGui.QIcon()
 		icon18.addPixmap(QtGui.QPixmap("res/icons/image.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -246,11 +300,11 @@ class Ui_MainWindow(object):
 		self.toolBar.addAction(self.actionUnderline)
 		self.toolBar.addAction(self.actionInsertImage)
 		self.toolBar.addSeparator()
+		self.toolBar.addAction(self.actionTranslate)
 		self.toolBar.addAction(self.chat_action)
 		self.toolBar.addAction(self.actionOCR)
 		self.toolBar.addAction(self.actionAudio_to_Text)
 		self.toolBar.addSeparator()
-		self.toolBar.addAction(self.splitAction)
 		self.menuEdit.addAction(self.actionSearch)
 		self.toolBar.addAction(self.actionSearch)
 		self.menuFile.addAction(self.actionOpen)
@@ -403,7 +457,6 @@ class Ui_MainWindow(object):
 		self.actionUnderline.triggered.connect(self.toggle_underline)
 		self.actionAbout_Notepad.triggered.connect(self.aboutapp)
 		self.actionStatistics.triggered.connect(self.show_statistics_dialog)
-		self.splitAction.triggered.connect(self.split_text_edit)
 		self.actionInsertImage.triggered.connect(self.insert_image)
 		self.actionFont.triggered.connect(self.choose_font)
 		self.actionOCR.triggered.connect(self.perform_ocr)
@@ -411,6 +464,7 @@ class Ui_MainWindow(object):
 		self.actionAudio_to_Text.triggered.connect(self.audio_to_text)
 		self.actionFontColor.triggered.connect(self.fontColor)
 		self.actionHighlight.triggered.connect(self.highlight)
+		self.actionTranslate.triggered.connect(self.translate_text)
 
 		
 		self.actionMode.setCheckable(True)  # Cho phép nút chuyển đổi giữa hai trạng thái
@@ -732,38 +786,6 @@ class Ui_MainWindow(object):
 		if font_label:
 			font_label.deleteLater()
 
-	def split_text_edit(self):
-		if not self.split_state:  # Nếu đang ở trạng thái chưa chia đôi
-			# Tạo một QSplitter mới
-			self.splitter = QSplitter(Qt.Horizontal)  # Sử dụng Qt.Vertical nếu muốn chia theo chiều dọc
-			
-			# Di chuyển textEdit hiện tại vào QSplitter
-			self.horizontalLayout.removeWidget(self.textEdit)
-			self.splitter.addWidget(self.textEdit)
-
-			# Tạo một QTextEdit mới
-			self.textEdit2 = QtWidgets.QTextEdit(self.centralwidget)
-			self.textEdit2.setObjectName("textEdit2")
-			self.splitter.addWidget(self.textEdit2)
-
-			# Thêm QSplitter vào horizontalLayout
-			self.horizontalLayout.addWidget(self.splitter)
-
-			self.split_state = True  # Cập nhật trạng thái đã chia đôi
-
-		else:  # Nếu đang ở trạng thái đã chia đôi
-			# Xóa QTextEdit thứ hai và QSplitter khỏi horizontalLayout
-			self.horizontalLayout.removeWidget(self.textEdit2)
-			self.horizontalLayout.removeWidget(self.splitter)
-
-			# Loại bỏ các widget từ QSplitter để tránh bị rò rỉ bộ nhớ
-			self.splitter.deleteLater()
-			self.textEdit2.deleteLater()
-
-			# Thêm lại textEdit vào horizontalLayout
-			self.horizontalLayout.addWidget(self.textEdit)
-
-			self.split_state = False  # Cập nhật trạng thái chưa chia đôi
 	def insert_image(self):
 		# Mở hộp thoại để chọn tệp ảnh
 		filename, _ = QFileDialog.getOpenFileName(None, "Select Image", "", "Image Files (*.png *.jpg *.bmp *.gif)")
@@ -910,6 +932,19 @@ class Ui_MainWindow(object):
 					in_word = False
 		if in_word:
 			yield start_pos, len(text), text[start_pos:]
+	def translate_text(self):
+		dialog = LanguageDialog(self.current_language_code, self.target_language_code)
+		
+		if dialog.exec_() == QDialog.Accepted:
+			self.current_language_code = dialog.get_current_language_code()
+			self.target_language_code = dialog.get_target_language_code()
+			translator = Translator()
+			current_text = self.textEdit.toPlainText()
+			translated_text = translator.translate(current_text, src=self.current_language_code, dest=self.target_language_code).text
+			self.textEdit.setText(translated_text)
+	
+
+
 
 
 
