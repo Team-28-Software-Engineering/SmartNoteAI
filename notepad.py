@@ -649,9 +649,8 @@ class Ui_MainWindow(object):
 
 
 	def aboutapp(self):
-		# about_text = "Author : Tanzim Rizwan\n"
-		# about_text += "Build Date : 12-10-17\n"
-		# about_text += "Copyright (C) 2017\n"
+		# about_text = "Author : Team-28-Software-Engineering\n"
+		# about_text += "Build Date : 15/5/2024\n"
 		# about_text += "Version : 1.0"
 		# QMessageBox.about(None, "ABOUT", about_text)
 		
