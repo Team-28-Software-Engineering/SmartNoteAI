@@ -492,34 +492,34 @@ class Ui_MainWindow(object):
 
 	def toggle_chat(self):
         # Kiểm tra xem API đã được cung cấp trong cấu hình hay chưa
-        if not config.API_KEY:
-            self.show_api_key_dialog()
-            return
+		if not config.API_KEY:
+			self.show_api_key_dialog()
+			return
         
         # Ẩn/hiện khung chat khi nút chat được nhấn
-        self.chatbot_frame.setVisible(not self.chatbot_frame.isVisible())
+		self.chatbot_frame.setVisible(not self.chatbot_frame.isVisible())
 
-    def show_api_key_dialog(self):
-        dialog = ApiKeyInputDialog()
-        if dialog.exec_() == QDialog.Accepted:
-            QMessageBox.information(self.centralwidget, "Success", "API Key has been saved. You can now use the chatbot.")
+	def show_api_key_dialog(self):
+		dialog = ApiKeyInputDialog()
+		if dialog.exec_() == QDialog.Accepted:
+			QMessageBox.information(self.centralwidget, "Success", "API Key has been saved. You can now use the chatbot.")
 
 	def send_message(self):
-        # Sử dụng API mà người dùng đã cung cấp
-        user_input = self.chat_input.text().strip()
-        if user_input:
-            response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo-0125",
-                messages=[
-                    {"role": "system", "content": "You are a helpful assistant."},
-                    {"role": "user", "content": user_input}
-                ],
-                max_tokens=1000,
-                api_key=config.API_KEY  # Sử dụng API từ cấu hình
-            )
-            text = response.choices[0].message["content"]
-            self.textEdit.append(f"\nUser: {user_input}\nChatbot: {text}\n")
-            self.chat_input.clear()
+		# Sử dụng API mà người dùng đã cung cấp
+		user_input = self.chat_input.text().strip()
+		if user_input:
+			response = openai.ChatCompletion.create(
+				model="gpt-3.5-turbo-0125",
+				messages=[
+					{"role": "system", "content": "You are a helpful assistant."},
+					{"role": "user", "content": user_input}
+				],
+				max_tokens=1000,
+				api_key=config.API_KEY  # Sử dụng API từ cấu hình
+			)
+			text = response.choices[0].message["content"]
+			self.textEdit.append(f"\nUser: {user_input}\nChatbot: {text}\n")
+			self.chat_input.clear()
 	def fontColor(self):
 		color = QtWidgets.QColorDialog.getColor(self.currentFontColor)
 		if color.isValid():
