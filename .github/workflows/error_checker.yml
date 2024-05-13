@@ -23,7 +23,12 @@ jobs:
       run: |
         pip install --upgrade pip
         pip install pylint  # hoặc các công cụ kiểm tra lỗi khác bạn muốn sử dụng
-        sudo apt-get install ffmeg
+        sudo apt-get install ffmpeg
+        pip install PyQt5
+        pip install openai
+        pip install pyenchant
+        pip install pydub
+        pip install googletrans==4.0.0-rc1
     - name: Run Python script
       run: |
         notepad.py  # Thay thế bằng tên của script bạn muốn chạy
