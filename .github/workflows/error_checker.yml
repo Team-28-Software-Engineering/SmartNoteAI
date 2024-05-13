@@ -22,7 +22,6 @@ jobs:
     - name: Install dependencies
       run: |
         pip install --upgrade pip
-        pip install -r requirements.txt  # Đảm bảo bạn có một file requirements.txt chứa các gói cần thiết
         pip install pylint  # hoặc các công cụ kiểm tra lỗi khác bạn muốn sử dụng
         sudo apt-get install ffmeg
     - name: Run Python script
