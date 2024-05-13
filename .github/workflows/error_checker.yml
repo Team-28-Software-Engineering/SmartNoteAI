@@ -30,4 +30,4 @@ jobs:
         pip install pydub
         pip install googletrans==4.0.0-rc1
     - name: Run Python script
-      run: python error_checker.py
+      run: python .github/workflows/error_checker.py
