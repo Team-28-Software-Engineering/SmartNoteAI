@@ -1,0 +1,29 @@
+name: Error Checker
+
+on:
+  push:
+    branches:
+      - main  # Thay main bằng tên nhánh mặc định của bạn
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt  # Đảm bảo bạn có một file requirements.txt chứa các gói cần thiết
+        pip install pylint  # hoặc các công cụ kiểm tra lỗi khác bạn muốn sử dụng
+        sudo apt-get install ffmeg
+    - name: Run Python script
+      run: |
+        notepad.py  # Thay thế bằng tên của script bạn muốn chạy
