@@ -31,4 +31,4 @@ jobs:
         pip install googletrans==4.0.0-rc1
     - name: Run Python script
       run: |
-        notepad.py  # Thay thế bằng tên của script bạn muốn chạy
+        error_checker.py  # Thay thế bằng tên của script bạn muốn chạy
