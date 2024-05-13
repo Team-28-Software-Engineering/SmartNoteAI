@@ -30,5 +30,4 @@ jobs:
         pip install pydub
         pip install googletrans==4.0.0-rc1
     - name: Run Python script
-      run: |
-        error_checker.py  # Thay thế bằng tên của script bạn muốn chạy
+      run: python error_checker.py
