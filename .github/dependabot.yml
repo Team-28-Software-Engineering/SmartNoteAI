@@ -1,7 +1,0 @@
-version: 2
-updates:
-  - package-ecosystem: "maven" # Thay thế bằng hệ sinh thái gói cụ thể của bạn, ví dụ: "npm", "pip", "composer"
-    directory: "/" # Vị trí của các tệp chỉ mục gói
-    schedule:
-      interval: "weekly"
-
