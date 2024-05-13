@@ -497,38 +497,42 @@ class Ui_MainWindow(object):
 		self.actionMode.setCheckable(True)  # Cho phép nút chuyển đổi giữa hai trạng thái
 
 	def toggle_chat(self):
-		# Kiểm tra xem API đã được cung cấp trong cấu hình hay không
-		if config.API_KEY:
-			# Nếu có API, hỏi người dùng có muốn thay đổi không
-			reply = QMessageBox.question(self.centralwidget, 'API Confirmation', 
-											'Do you want to change your API key?', 
-											QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-			if reply == QMessageBox.Yes:
-				# Nếu người dùng muốn thay đổi, hiển thị cửa sổ nhập API
+		# Kiểm tra xem chatbot đã mở hay không
+		if self.chatbot_frame.isVisible():
+			# Nếu chatbot đang mở, ẩn nó đi và không thực hiện thay đổi API
+			self.chatbot_frame.setVisible(False)
+		else:
+			# Kiểm tra xem API đã được cung cấp trong cấu hình hay không
+			if config.API_KEY:
+				# Nếu có API, hỏi người dùng có muốn thay đổi không
+				reply = QMessageBox.question(self.centralwidget, 'API Confirmation', 
+												'Do you want to change your API key?', 
+												QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+				if reply == QMessageBox.Yes:
+					# Nếu người dùng muốn thay đổi, hiển thị cửa sổ nhập API
+					api_key, ok = QInputDialog.getItem(self.centralwidget, 'Enter API Key', 
+														'Enter your API key:', self.previous_api_keys, editable=True)
+					if ok:
+						config.API_KEY = api_key
+						if api_key not in self.previous_api_keys:
+							self.previous_api_keys.append(api_key)
+			else:
+				# Nếu không có API, yêu cầu người dùng nhập API key
 				api_key, ok = QInputDialog.getItem(self.centralwidget, 'Enter API Key', 
 													'Enter your API key:', self.previous_api_keys, editable=True)
 				if ok:
 					config.API_KEY = api_key
 					if api_key not in self.previous_api_keys:
 						self.previous_api_keys.append(api_key)
-		else:
-			# Nếu không có API, yêu cầu người dùng nhập API key
-			api_key, ok = QInputDialog.getItem(self.centralwidget, 'Enter API Key', 
-												'Enter your API key:', self.previous_api_keys, editable=True)
-			if ok:
-				config.API_KEY = api_key
-				if api_key not in self.previous_api_keys:
-					self.previous_api_keys.append(api_key)
 
-			# Kiểm tra lại xem có API key hay không
-			if not config.API_KEY:
-				# Nếu không có API key, ẩn thanh chat
-				self.chatbot_frame.setVisible(False)
-				return
+				# Kiểm tra lại xem có API key hay không
+				if not config.API_KEY:
+					# Nếu không có API key, ẩn thanh chat
+					self.chatbot_frame.setVisible(False)
+					return
 
-		# Ẩn/hiện khung chat khi nút chat được nhấn
-		self.chatbot_frame.setVisible(not self.chatbot_frame.isVisible())
-
+			# Hiển thị hoặc ẩn khung chat khi nút chat được nhấn
+			self.chatbot_frame.setVisible(not self.chatbot_frame.isVisible())
 
 
 
