@@ -456,9 +456,20 @@ class Ui_MainWindow(object):
 		self.actionUndo.setText(_translate("MainWindow", "Undo"))
 		self.actionAbout_Notepad.setText(_translate("MainWindow", "About Notepad"))
 		self.actionSearch.setText(_translate("MainWindow", "Search"))
+		self.actionStatistics.setText(_translate("MainWindow", "Display"))
 		self.actionExit.setText(_translate("MainWindow", "Exit"))
 		self.actionFontColor.setText(_translate("MainWindow", "Font Color"))
+		self.actionFont.setText(_translate("MainWindow", "Font"))
+		self.actionBold.setText(_translate("MainWindow", "Bold"))
+		self.actionItalic.setText(_translate("MainWindow", "Italic"))
+		self.actionUnderline.setText(_translate("MainWindow", "Underline"))
+		self.actionInsertImage.setText(_translate("MainWindow", "Insert Image"))
+		self.actionTranslate.setText(_translate("MainWindow", "Translate"))
+		self.chat_action.setText(_translate("MainWindow", "Chatbot"))
+		self.actionOCR.setText(_translate("MainWindow", "Image to Text"))
+		self.actionAudio_to_Text.setText(_translate("MainWindow", "Audio to Text"))
 		self.actionHighlight.setText(_translate("MainWindow", "Highlight"))
+		self.actionMode.setText(_translate("MainWindow", "Mode"))
 
 		self.filepath = ''
 		self.actionSearch.triggered.connect(self.search_text)
@@ -781,6 +792,7 @@ class Ui_MainWindow(object):
 		self.toolBar.setStyleSheet("")
 		for action in self.toolBar.actions():
 			action.setStyleSheet("")
+
 	def update_statistics(self):
 		# Lấy văn bản từ QTextEdit
 		text = self.textEdit.toPlainText()
@@ -796,7 +808,7 @@ class Ui_MainWindow(object):
 		self.lineCountLabel.setText("Lines: " + str(line_count))
 	def show_statistics_dialog(self):
 		dialog = QtWidgets.QDialog()
-		dialog.setWindowTitle("Statistics Options")
+		dialog.setWindowTitle("Display Options")
 
 		layout = QtWidgets.QVBoxLayout()
 
@@ -866,6 +878,7 @@ class Ui_MainWindow(object):
 				self.stop_spell_check_timer()
 				# Set text color to black when spell check is disabled
 				self.set_text_color(Qt.black)
+
 	def set_text_color(self, color):
 		cursor = self.textEdit.textCursor()
 		cursor.select(QtGui.QTextCursor.Document)
@@ -891,9 +904,6 @@ class Ui_MainWindow(object):
 			# Áp dụng lại format cho ký tự
 			cursor.setCharFormat(char_format)
 
-
-
-
 	def show_current_font(self, font):
 		# Kiểm tra xem checkbox "Show Current Font" đã được chọn hay không
 		if not self.show_font_checked:
@@ -917,6 +927,7 @@ class Ui_MainWindow(object):
 			font_label = QtWidgets.QLabel(font_info)
 			font_label.setObjectName("fontLabel")  # Đặt tên cho widget để có thể tìm lại sau này
 			self.statusbar.insertWidget(0, font_label)
+			
 	def hide_current_font(self):
 		# Tìm và xóa widget hiển thị tên font hiện tại
 		font_label = self.statusbar.findChild(QtWidgets.QLabel, "fontLabel")
@@ -942,6 +953,7 @@ class Ui_MainWindow(object):
 				# Chèn ảnh vào vị trí hiện tại của con trỏ
 				cursor = self.textEdit.textCursor()
 				cursor.insertImage(image_format)
+
 	def drag_enter_event(self, event):
 		if event.mimeData().hasUrls():
 			event.acceptProposedAction()
@@ -955,6 +967,7 @@ class Ui_MainWindow(object):
 					file_path = url.toLocalFile()
 					if file_path.lower().endswith(('.png', '.jpg', '.bmp', '.gif')):
 						self.insert_image(file_path)
+
 	def choose_font(self):
 		# Hiển thị hộp thoại chọn font
 		font, ok = QFontDialog.getFont()
@@ -964,6 +977,7 @@ class Ui_MainWindow(object):
 
 			# Hiển thị tên font hiện tại ở góc trái notepad
 			self.show_current_font(font)
+
 	def perform_ocr(self):
 		# Open a file dialog to select an image
 		filename, _ = QFileDialog.getOpenFileName(None, "Select Image", "", "Image Files (*.png *.jpg *.bmp *.gif)")
@@ -978,6 +992,7 @@ class Ui_MainWindow(object):
 			
 			# Append the extracted text to the text edit
 			self.textEdit.append(extracted_text)
+
 	def audio_to_text(self):
 		# Mở cửa sổ để chọn file âm thanh
 		filename, _ = QFileDialog.getOpenFileName(None, "Select Audio File", "", "Audio Files (*.wav *.mp3)")
@@ -1008,6 +1023,7 @@ class Ui_MainWindow(object):
 	def start_spell_check_timer(self):
 		if self.spell_check_checked:
 			self.spell_check_timer.start(1000) 
+
 	def stop_spell_check_timer(self):
 		self.spell_check_timer.stop() 
 
