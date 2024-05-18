@@ -5,6 +5,7 @@
 # Created by: PyQt5 UI code generator 5.5.1
 #
 # WARNING! All changes made in this file will be lost!
+from openai.error import AuthenticationError
 from pydub import AudioSegment
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QFileDialog, QMessageBox
@@ -75,6 +76,10 @@ class LanguageDialog(QDialog):
 
     def get_target_language_code(self):
         return self.target_language_combo.currentData()
+
+class InvalidAPIKeyError(Exception):
+    pass
+
 class ImageSizeDialog(QDialog):
     def __init__(self, parent=None):
         super(ImageSizeDialog, self).__init__(parent)
@@ -135,6 +140,7 @@ class Ui_MainWindow(object):
 
 
 	def setupUi(self, MainWindow):
+		self.previous_api_keys = []
 		self.current_language_code = "auto"  # Giá trị mặc định cho ngôn ngữ hiện tại
 		self.target_language_code = "en" 
 		self.currentFontColor = QtGui.QColor(QtCore.Qt.black)
@@ -491,45 +497,134 @@ class Ui_MainWindow(object):
 		self.actionMode.setCheckable(True)  # Cho phép nút chuyển đổi giữa hai trạng thái
 
 	def toggle_chat(self):
-        # Kiểm tra xem API đã được cung cấp trong cấu hình hay không
-		if config.API_KEY:
-			# Nếu có API, hỏi người dùng có muốn thay đổi không
-			reply = QMessageBox.question(self.centralwidget, 'API Confirmation','Do you want to change your API key?', QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-			if reply == QMessageBox.Yes:
-				# Nếu người dùng muốn thay đổi, hiển thị cửa sổ nhập API
-				api_key, ok = QInputDialog.getText(self.centralwidget, 'Enter API Key', 'Enter your API key:')
+        # Kiểm tra xem chatbot đã mở hay không
+		if self.chatbot_frame.isVisible():
+			# Nếu chatbot đang mở, ẩn nó đi và không thực hiện thay đổi API
+			self.chatbot_frame.setVisible(False)
+		else:
+			# Kiểm tra xem API đã được cung cấp trong cấu hình hay không
+			if config.API_KEY:
+				# Nếu có API, hỏi người dùng có muốn thay đổi không
+				reply = QMessageBox.question(self.centralwidget, 'API Confirmation', 
+												'Do you want to change your API key?', 
+												QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+				if reply == QMessageBox.Yes:
+					# Nếu người dùng muốn thay đổi, hiển thị cửa sổ nhập API
+					api_key, ok = QInputDialog.getItem(self.centralwidget, 'Enter API Key', 
+														'Enter your API key:', self.previous_api_keys, editable=True)
+					if ok:
+						config.API_KEY = api_key
+						if api_key not in self.previous_api_keys:
+							self.previous_api_keys.append(api_key)
+			else:
+				# Nếu không có API, yêu cầu người dùng nhập API key
+				api_key, ok = QInputDialog.getItem(self.centralwidget, 'Enter API Key', 
+													'Enter your API key:', self.previous_api_keys, editable=True)
 				if ok:
 					config.API_KEY = api_key
-		else:
-			# Nếu không có API, yêu cầu người dùng nhập API key
-			api_key, ok = QInputDialog.getText(self.centralwidget, 'Enter API Key','Enter your API key:')
-			if ok:
-				config.API_KEY = api_key
+					if api_key not in self.previous_api_keys:
+						self.previous_api_keys.append(api_key)
 
-        # Ẩn/hiện khung chat khi nút chat được nhấn
-		self.chatbot_frame.setVisible(not self.chatbot_frame.isVisible())
+				# Kiểm tra lại xem có API key hay không
+				if not config.API_KEY:
+					# Nếu không có API key, ẩn thanh chat
+					self.chatbot_frame.setVisible(False)
+					return
+
+			# Hiển thị hoặc ẩn khung chat khi nút chat được nhấn
+			self.chatbot_frame.setVisible(not self.chatbot_frame.isVisible())
+
+	def request_api_key(self):
+		# Hiển thị hộp thoại yêu cầu nhập API key
+		api_key, ok = QInputDialog.getText(self.centralwidget, 'Enter API Key', 
+											'Enter your API key:')
+		if ok:
+			# Kiểm tra tính hợp lệ của API key
+			try:
+				self.validate_api_key(api_key)
+				config.API_KEY = api_key
+				# Thêm API key vào danh sách các API đã nhập đúng
+				self.valid_api_keys.append(api_key)
+			except InvalidAPIKeyError as e:
+				QMessageBox.warning(self.centralwidget, 'Invalid API Key', str(e))
+				# Nếu API không hợp lệ, yêu cầu nhập lại
+				self.request_api_key()
+
+	def show_api_content(self):
+		if config.API_KEY:
+			QMessageBox.information(self.centralwidget, 'API Key Content', 
+									f'Your API key is: {config.API_KEY}', QMessageBox.Ok)
+		else:
+			QMessageBox.warning(self.centralwidget, 'API Key Content', 
+									'No API key is currently set.', QMessageBox.Ok)
 
 	def show_api_key_dialog(self):
 		dialog = ApiKeyInputDialog()
 		if dialog.exec_() == QDialog.Accepted:
 			QMessageBox.information(self.centralwidget, "Success", "API Key has been saved. You can now use the chatbot.")
 
+	def setup_chatbot_frame(self):
+		self.chatbot_frame = QWidget(self.centralwidget)
+		self.chat_input = QLineEdit(self.chatbot_frame)
+		self.chat_button = QPushButton("Send", self.chatbot_frame)
+		self.api_info_button = QPushButton("API Info", self.chatbot_frame)  # Nút mới
+
+		# Tạo layout chính cho cửa sổ
+		vbox_main = QVBoxLayout()
+		vbox_main.addWidget(self.textEdit)
+
+		# Tạo layout cho khung chat và nút gửi tin nhắn, nhưng ẩn nó ban đầu
+		self.chatbot_frame.hide()
+		hbox_chat = QHBoxLayout()
+		hbox_chat.addWidget(self.chat_input)
+		hbox_chat.addWidget(self.chat_button)
+		hbox_chat.addWidget(self.api_info_button)  # Thêm nút mới vào layout
+		self.chatbot_frame.setLayout(hbox_chat)
+		vbox_main.addWidget(self.chatbot_frame)
+
+		self.horizontalLayout.addLayout(vbox_main)
+
+		# Kết nối sự kiện clicked của nút gửi tin nhắn
+		self.chat_button.clicked.connect(self.send_message)
+
+		# Kết nối sự kiện clicked của nút thông tin API
+		self.api_info_button.clicked.connect(self.show_api_content)
+
+		# Kết nối sự kiện enter của QLineEdit để gửi tin nhắn
+		self.chat_input.returnPressed.connect(self.send_message)
+
 	def send_message(self):
-		# Sử dụng API mà người dùng đã cung cấp
 		user_input = self.chat_input.text().strip()
 		if user_input:
-			response = openai.ChatCompletion.create(
-				model="gpt-3.5-turbo-0125",
-				messages=[
-					{"role": "system", "content": "You are a helpful assistant."},
-					{"role": "user", "content": user_input}
-				],
-				max_tokens=1000,
-				api_key=config.API_KEY  # Sử dụng API từ cấu hình
-			)
-			text = response.choices[0].message["content"]
-			self.textEdit.append(f"\nUser: {user_input}\nChatbot: {text}\n")
-			self.chat_input.clear()
+			try:
+				response = openai.ChatCompletion.create(
+					model="gpt-3.5-turbo-0125",
+					messages=[
+						{"role": "system", "content": "You are a helpful assistant."},
+						{"role": "user", "content": user_input}
+					],
+					max_tokens=1000,
+					api_key=config.API_KEY  # Sử dụng API từ cấu hình
+				)
+				text = response.choices[0].message["content"]
+				self.textEdit.append(f"\nUser: {user_input}\nChatbot: {text}\n")
+				self.chat_input.clear()
+			except AuthenticationError as e:
+				# Hiển thị cảnh báo lỗi
+				QMessageBox.warning(self.centralwidget, 'Authentication Error', str(e))
+				# Yêu cầu nhập API mới
+				api_key, ok = QInputDialog.getItem(self.centralwidget, 'Enter API Key', 
+													'Enter your API key:', self.previous_api_keys, editable=True)
+				if ok:
+					config.API_KEY = api_key
+					if api_key not in self.previous_api_keys:
+						self.previous_api_keys.append(api_key)
+					# Thử lại gửi tin nhắn
+					self.send_message()
+			except Exception as e:
+				# Xử lý các loại lỗi khác nếu cần
+				QMessageBox.warning(self.centralwidget, 'Error', str(e))
+				
 	def fontColor(self):
 		color = QtWidgets.QColorDialog.getColor(self.currentFontColor)
 		if color.isValid():
