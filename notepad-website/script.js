@@ -33,6 +33,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 <p><a href="notepadsetup.exe" onclick="toggleDownloadInfo('windows')">Download Notepad v0.0.1 for Windows <span id="windows-info" class="arrow">&#9660;</span></a></p>
                 <div id="windows-download-info" class="hidden">
                     <p>Thông tin tải xuống cho Windows</p>
+                    <p>File .exe sẽ được tải về máy</p>
+                    <p>Hình bên dưới minh họa các bước cài đặt phần mềm trên Window</p>
                 </div>
                 
                 <p><a href="notepadsetup.exe" onclick="toggleDownloadInfo('linux')">Download Notepad v0.0.1 for Linux <span id="linux-info" class="arrow">&#9660;</span></a></p>
