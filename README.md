@@ -2,7 +2,10 @@
 
 ## Giới thiệu
 Đây là một ứng dụng notepad đơn giản được tích hợp với một chatbot sử dụng OpenAI API và các tính năng thú vị như nhận diện văn bản từ ảnh và nhận diện văn bản từ âm thanh. Ứng dụng cho phép người dùng viết và lưu trữ ghi chú cũng như tương tác với một trợ lý ảo để nhận được câu trả lời tự nhiên trên các câu hỏi và yêu cầu. Ứng dụng cung cấp khả năng nhận diện văn bản từ ảnh và nhận diện văn bản từ âm thanh và đưa ra màn hình cho người sử dụng
-Bạn có thể tải ứng dụng cho Macos [tại đây](https://drive.google.com/file/d/1jr3OzMJ-7vhLfysFtpeODii14OOy9bsl/view?usp=sharing)
+
+
+## Download for macos
+Bạn có thể tải ứng dụng cho Macos [tại đây](https://drive.google.com/file/d/1gfaOTlwYwShlC8_8okhunse6Ow6wzb9a/view?usp=sharing)
 
 ## Cài đặt
 ### Yêu cầu
