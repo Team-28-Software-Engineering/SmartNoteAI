@@ -2,3 +2,4 @@ PyQt5
 openai
 pyenchant
 pydub
+googletrans==4.0.0-rc1
