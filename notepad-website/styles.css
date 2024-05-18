@@ -1,0 +1,139 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    display: flex;
+    height: 100vh;
+}
+
+.container {
+    display: flex;
+    width: 100%;
+}
+
+.sidebar {
+    width: 15%;
+    background-color: #a59494;
+    color: #225571;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    position: fixed;
+    height: 100%;
+}
+
+.logo {
+    width: 80%;
+    margin-bottom: 20px;
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+}
+
+nav ul li {
+    margin: 10px 0;
+}
+
+nav ul li a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 1.2em;
+    transition: color 0.3s;
+}
+
+nav ul li a:hover {
+    color: #f90;
+}
+
+.content {
+    margin-left: 20%;
+    padding: 20px;
+    width: 80%;
+    overflow-y: auto;
+    height: 100vh;
+}
+
+.heading {
+    font-size: 2.5em; /* Kích thước phông chữ lớn hơn */
+    font-weight: bold; /* In đậm */
+    font-family: 'Arial', sans-serif; /* Thay đổi font chữ */
+    color: #225571; /* Màu chữ */
+}
+
+.hidden {
+    display: none;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.fade-in {
+    animation: fadeIn 1s;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(0); }
+}
+
+.slide-in {
+    animation: slideIn 1s;
+}
+
+.features-section {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.feature {
+    width: 100%;
+    display: flex;
+    margin-bottom: 20px;
+}
+
+.feature:nth-child(odd) .feature-text {
+    order: 2;
+}
+
+.feature:nth-child(even) .feature-text {
+    order: 1;
+}
+
+.feature-text, .feature-media {
+    width: 50%;
+}
+
+.feature-text {
+    padding: 20px;
+}
+
+.feature-media img, .feature-media video {
+    width: 100%;
+    height: auto;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+form input, form textarea {
+    margin-bottom: 10px;
+    padding: 10px;
+    font-size: 1em;
+}
+
+form input[type="submit"] {
+    background-color: #333;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+}
+
+form input[type="submit"]:hover {
+    background-color: #f90;
+}
