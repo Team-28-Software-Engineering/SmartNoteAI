@@ -1,16 +1,16 @@
-MIT License
+UET-IAI License
 
 Bản quyền (c) [22/4/2024] [Team28]
 
-Đây là mã nguồn mở được cấp phép theo Giấy phép MIT. Xin vui lòng xem tệp LICENSE trong dự án này để biết thông tin chi tiết về quyền sử dụng.
+Đây là mã nguồn mở được cấp phép theo Giấy phép UET-IAI. Xin vui lòng xem tệp LICENSE trong dự án này để biết thông tin chi tiết về quyền sử dụng.
 
 Giấy phép này áp dụng cho tất cả các phần của dự án trừ những phần được ghi chú khác rõ ràng.
 
 ---
 
-The MIT License (MIT)
+The UET-IAI License (UET)
 
-Copyright (c) [year] [author's name]
+Copyright (c) [2024] [Team28]
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
