@@ -88,6 +88,9 @@ class ImageSizeDialog(QDialog):
     def __init__(self, parent=None):
         super(ImageSizeDialog, self).__init__(parent)
         self.setWindowTitle("Resize Image")
+        self.setFixedSize(300, 130)
+        self.setWindowIcon(QIcon('res/icons/image.png'))
+        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
         self.layout = QVBoxLayout()
 
         # Tạo một QLabel để hiển thị kích thước mới của ảnh
@@ -97,7 +100,7 @@ class ImageSizeDialog(QDialog):
         # Tạo một QSlider để chọn kích thước mới của ảnh (từ 50% đến 200%)
         self.slider = QSlider(Qt.Horizontal)
         self.slider.setMinimum(150)
-        self.slider.setMaximum(200)
+        self.slider.setMaximum(550)
         self.slider.setValue(150)
         self.slider.setTickPosition(QSlider.TicksBelow)
         self.slider.setTickInterval(25)
@@ -168,6 +171,9 @@ class ApiKeyInputDialog(QDialog):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Enter API Key")
+        self.setWindowIcon(QIcon('res/icons/gpt.png'))
+        self.setFixedSize(300, 150)
+        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
         self.label = QLabel("Please enter your OpenAI API Key:")
         self.input_field = QLineEdit()
         self.submit_button = QPushButton("Submit")
@@ -745,14 +751,14 @@ class Ui_MainWindow(object):
 
 	def toggle_mode(self):
 		if self.actionMode.isChecked():  # Nếu đang ở chế độ tối
-			self.setStyleSheet("background-color: #222; color: #FFF;")
+			self.setStyleSheet("background-color: #2E2E2E; color: #E0E0E0;")
 		else:  # Nếu đang ở chế độ sáng
 			self.setStyleSheet("")  # Đặt lại stylesheet về mặc định
 
 
 	def openfile(self):
 		
-		filename, _ = QFileDialog.getOpenFileName(None,"QFileDialog.getOpenFileName()", "","All Files (*);;Python Files (*.py)")
+		filename, _ = QFileDialog.getOpenFileName(None,"Open File", "","All Files (*);;Python Files (*.py)")
 
 		if filename == "":
 			self.textEdit.clear()
@@ -783,7 +789,7 @@ class Ui_MainWindow(object):
 	def savefile(self):
 
 		if not self.filepath:
-			filename, _ = QFileDialog.getSaveFileName(None,"QFileDialog.getOpenFileName()", "NewFile","All Files (*);;Python Files (*.py)")
+			filename, _ = QFileDialog.getSaveFileName(None,"Save File", "NewFile","All Files (*);;Python Files (*.py)")
 			self.filepath = filename	
 
 		
@@ -797,7 +803,7 @@ class Ui_MainWindow(object):
 
 
 	def saveasfile(self):
-		filename, _ = QFileDialog.getSaveFileName(None,"QFileDialog.getOpenFileName()", "NewFile","All Files (*);;Python Files (*.py)")	
+		filename, _ = QFileDialog.getSaveFileName(None,"Save as", "NewFile","All Files (*);;Python Files (*.py)")	
 
 		if filename == "":
 			pass
@@ -844,24 +850,40 @@ class Ui_MainWindow(object):
 			self.set_light_mode()
 
 	def set_dark_mode(self):
-		self.centralwidget.setStyleSheet("background-color: #333; color: #FFF;")
-		self.textEdit.setStyleSheet("background-color: #333; color: #FFF;")
-		self.menubar.setStyleSheet("background-color: #666; color: #FFF;")  # Đảo màu nền và màu chữ
-		self.statusbar.setStyleSheet("background-color: #333; color: #FFF;")
-		self.toolBar.setStyleSheet("background-color: #666; color: #FFF;")
-		for action in self.toolBar.actions():
-			action.setStyleSheet("color: #FFF;")
+		self.centralwidget.setStyleSheet("background-color: #2E2E2E; color: #E0E0E0;")
+		self.textEdit.setStyleSheet("background-color: #2E2E2E; color: #E0E0E0;")
+		self.menubar.setStyleSheet("background-color: #3E3E3E; color: #E0E0E0;")
+		self.statusbar.setStyleSheet("background-color: #2E2E2E; color: #E0E0E0;")
+		self.toolBar.setStyleSheet("""
+			QToolBar {
+				background-color: #3E3E3E;
+			}
+			QToolButton {
+				color: #E0E0E0;
+			}
+			QToolButton:hover {
+				background-color: #5A5A5A;
+			}
+		""")
 
 
 
 	def set_light_mode(self):
-		self.centralwidget.setStyleSheet("")
-		self.textEdit.setStyleSheet("")
-		self.menubar.setStyleSheet("")
-		self.statusbar.setStyleSheet("")
-		self.toolBar.setStyleSheet("")
-		for action in self.toolBar.actions():
-			action.setStyleSheet("")
+		self.centralwidget.setStyleSheet("background-color: #FFFFFF; color: #000000;")
+		self.textEdit.setStyleSheet("background-color: #FFFFFF; color: #000000;")
+		self.menubar.setStyleSheet("background-color: #F0F0F0; color: #000000;")
+		self.statusbar.setStyleSheet("background-color: #FFFFFF; color: #000000;")
+		self.toolBar.setStyleSheet("""
+			QToolBar {
+				background-color: #F0F0F0;
+			}
+			QToolButton {
+				color: #000000;
+			}
+			QToolButton:hover {
+				background-color: #D0D0D0;
+			}
+		""")
 
 	def update_statistics(self):
 		# Lấy văn bản từ QTextEdit
@@ -876,9 +898,13 @@ class Ui_MainWindow(object):
 		self.wordCountLabel.setText("Words: " + str(word_count))
 		self.characterCountLabel.setText("Characters: " + str(character_count))
 		self.lineCountLabel.setText("Lines: " + str(line_count))
+
 	def show_statistics_dialog(self):
 		dialog = QtWidgets.QDialog()
 		dialog.setWindowTitle("Display Options")
+		dialog.setWindowIcon(QIcon('res/icons/notepad.png'))
+		dialog.setFixedSize(260, 300)
+		dialog.setWindowFlags(dialog.windowFlags() & ~Qt.WindowContextHelpButtonHint)
 
 		layout = QtWidgets.QVBoxLayout()
 
