@@ -60,7 +60,7 @@ document.addEventListener("DOMContentLoaded", () => {
         download: `
             <div class="fade-in">
                 <div class="heading">Downloads</div>
-                <p><a href="https://drive.google.com/uc?export=download&id=15TwSLdFyOr-6pyOm_qcIErqgY76M077l" onclick="toggleDownloadInfo('windows')">Download Notepad v0.0.1 for Windows <span id="windows-info" class="arrow">&#9660;</span></a></p>
+                <p><a href="https://drive.google.com/file/d/1bJGGQhir7D9VAmNaOp37VeqYs_1R3RU1/view?usp=drive_link" onclick="toggleDownloadInfo('windows')">Download Notepad v0.0.1 for Windows <span id="windows-info" class="arrow">&#9660;</span></a></p>
                 <p><a href="#" onclick="toggleDownloadInfo('windows')"> <span id="windows-info" class="arrow">&#9660;</span></a></p>
                 <div id="windows-download-info" class="hidden">
                     <p>Hướng dẫn cài ứng dụng trên Windows</p>
@@ -68,7 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <p>Hình bên dưới minh họa các bước cài đặt phần mềm trên Window</p>
                 </div>
                 
-                <p><a href="https://drive.google.com/uc?export=download&id=15TwSLdFyOr-6pyOm_qcIErqgY76M077l" onclick="toggleDownloadInfo('linux')">Download Notepad v0.0.1 for Linux <span id="linux-info"</a></p>
+                <p><a href="https://drive.google.com/file/d/1bJGGQhir7D9VAmNaOp37VeqYs_1R3RU1/view?usp=drive_link" onclick="toggleDownloadInfo('linux')">Download Notepad v0.0.1 for Linux <span id="linux-info"</a></p>
                 <p><a href="#" onclick="toggleDownloadInfo('linux')"> <span id="linux-info" class="arrow">&#9660;</span></a></p>
                 <div id="linux-download-info" class="hidden">
                     <p>Hướng dẫn cài ứng dụng trên Linux</p>

@@ -12,7 +12,7 @@ body {
 
 .sidebar {
     width: 15%;
-    background-color: #a59494;
+    background-color: #6ae3f3;
     color: #225571;
     display: flex;
     flex-direction: column;
@@ -56,10 +56,14 @@ nav ul li a:hover {
 }
 
 .heading {
-    font-size: 2.5em; /* Kích thước phông chữ lớn hơn */
-    font-weight: bold; /* In đậm */
-    font-family: 'Arial', sans-serif; /* Thay đổi font chữ */
-    color: #225571; /* Màu chữ */
+    font-size: 2.5em;
+    /* Kích thước phông chữ lớn hơn */
+    font-weight: bold;
+    /* In đậm */
+    font-family: 'Arial', sans-serif;
+    /* Thay đổi font chữ */
+    color: #225571;
+    /* Màu chữ */
 }
 
 .hidden {
@@ -67,8 +71,13 @@ nav ul li a:hover {
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 .fade-in {
@@ -76,8 +85,13 @@ nav ul li a:hover {
 }
 
 @keyframes slideIn {
-    from { transform: translateX(-100%); }
-    to { transform: translateX(0); }
+    from {
+        transform: translateX(-100%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
 }
 
 .slide-in {
@@ -103,7 +117,8 @@ nav ul li a:hover {
     order: 1;
 }
 
-.feature-text, .feature-media {
+.feature-text,
+.feature-media {
     width: 50%;
 }
 
@@ -111,7 +126,8 @@ nav ul li a:hover {
     padding: 20px;
 }
 
-.feature-media img, .feature-media video {
+.feature-media img,
+.feature-media video {
     width: 100%;
     height: auto;
 }
@@ -121,7 +137,8 @@ form {
     flex-direction: column;
 }
 
-form input, form textarea {
+form input,
+form textarea {
     margin-bottom: 10px;
     padding: 10px;
     font-size: 1em;
@@ -136,4 +153,17 @@ form input[type="submit"] {
 
 form input[type="submit"]:hover {
     background-color: #f90;
+}
+
+.hidden {
+    display: none;
+}
+
+.download-wrapper {
+    display: flex; /* Sử dụng flexbox */
+    align-items: center; /* Căn giữa theo chiều dọc */
+}
+
+.download-wrapper .arrow {
+    margin-left: 5px; /* Khoảng cách giữa nút tải và nút "arrow" */
 }
