@@ -8,7 +8,7 @@ https://smartnoteai-68f02.web.app/
 
 
 ## Download for macos
-Bạn có thể tải ứng dụng cho Macos [tại đây](https://drive.google.com/file/d/1gfaOTlwYwShlC8_8okhunse6Ow6wzb9a/view?usp=sharing)
+Bạn có thể tải ứng dụng cho Macos [tại đây](https://drive.google.com/file/d/1eYQvJyxWkRRR-GYn87hw_L6tQkt6YNwo/view?usp=sharing)
 
 ## Cài đặt
 ### Yêu cầu
@@ -23,6 +23,7 @@ Tải ffmped [tại đây](https://www.gyan.dev/ffmpeg/builds/ffmpeg-git-essenti
 Sau đó sao chép vđịa chỉ path của tệp bin trong forder đã giải nén và vào thanh tìm kiếm và mở Edit the System environment variables, sau đó mở Environment Variables 
 
 Ở phần System Varibles, nhấn mục Path và nhấn Edit, sau đó nhấn New và thêm địa chỉ Path của tệp bin đã sao chép và nhấn ok để hoàn thành
+Nếu bạn dùng macos có thể cài đặt bằng homebrew trên terminal
 
 ## Thiết lập OpenAI API Key
 
