@@ -751,7 +751,7 @@ class Ui_MainWindow(object):
 
 	def toggle_mode(self):
 		if self.actionMode.isChecked():  # Nếu đang ở chế độ tối
-			self.setStyleSheet("background-color: #2E2E2E; color: #E0E0E0;")
+			self.setStyleSheet("background-color: #222; color: #FFF;")
 		else:  # Nếu đang ở chế độ sáng
 			self.setStyleSheet("")  # Đặt lại stylesheet về mặc định
 
