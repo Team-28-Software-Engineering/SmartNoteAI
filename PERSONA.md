@@ -1,5 +1,5 @@
 ## Persona 1
-Hà là một sinh viên năm cuối tại Đại học Khoa học Tự nhiên Hà Nội. Cô đang tập trung vào việc chuẩn bị cho bài thuyết trình cuối kỳ môn học của mình. Cô cần một cách để tổ chức thông tin và ghi chú để chuẩn bị cho các dự án và bài thuyết trình của mình. Linh muốn tận dụng công nghệ mới nhất để tối ưu hóa hiệu suất và hiệu quả của công việc học tập và nghiên cứu của mình.
+Hà là một sinh viên năm cuối tại Đại học Khoa học Tự nhiên Hà Nội. Cô đang tập trung vào việc chuẩn bị cho bài thuyết trình cuối kỳ môn học của mình. Cô cần một cách để tổ chức thông tin và ghi chú để chuẩn bị cho các dự án và bài thuyết trình của mình. Hà muốn tận dụng công nghệ mới nhất để tối ưu hóa hiệu suất và hiệu quả của công việc học tập và nghiên cứu của mình.
 
 Hà gặp một số vấn đề với một số sản phẩm hiện tại mà cô đang dùng. Một số sản phẩm ghi chú có thể không cung cấp đủ tính linh hoạt để Hà có thể tạo ra các ghi chú đa dạng với văn bản, hình ảnh và âm thanh theo nhu cầu cụ thể của dự án của mình. Các sản phẩm ghi chú truyền thống có thể không tích hợp công nghệ trí tuệ nhân tạo để trợ giúp cô làm việc tốt nhanh, nhanh hơn.
 
