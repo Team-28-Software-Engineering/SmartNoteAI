@@ -3,6 +3,8 @@
 ## Giới thiệu
 Đây là một ứng dụng notepad đơn giản được tích hợp với một chatbot sử dụng OpenAI API và các tính năng thú vị như nhận diện văn bản từ ảnh và nhận diện văn bản từ âm thanh. Ứng dụng cho phép người dùng viết và lưu trữ ghi chú cũng như tương tác với một trợ lý ảo để nhận được câu trả lời tự nhiên trên các câu hỏi và yêu cầu. Ứng dụng cung cấp khả năng nhận diện văn bản từ ảnh và nhận diện văn bản từ âm thanh và đưa ra màn hình cho người sử dụng.
 
+Bạn có thể xem video demo sản phẩm của chúng tôi [tại đây](https://www.youtube.com/watch?v=AJStvRe9raU)
+
 Bạn có thể xem thêm các thông tin về ứng dụng và tải xuống [tại đây](https://smart-note-ai.web.app/)
 
 ## Download 
