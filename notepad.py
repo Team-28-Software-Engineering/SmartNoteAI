@@ -12,6 +12,7 @@ from PyQt5.QtWidgets import QFileDialog, QMessageBox
 from about import Ui_Dialog 
 from PyQt5.QtGui import QKeySequence
 from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QMessageBox, QTextEdit, QInputDialog
+from PyQt5.QtPrintSupport import QPrinter, QPrintDialog
 from PyQt5.QtGui import QIcon, QTextCursor, QTextCharFormat, QColor
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QFileDialog
@@ -36,6 +37,9 @@ class LanguageDialog(QDialog):
     def __init__(self, current_language_code, target_language_code, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Translate Text")
+        self.setFixedSize(300, 200)
+        self.setWindowIcon(QIcon('res/icons/translate.png'))
+        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
         self.current_language_code = current_language_code
         self.target_language_code = target_language_code
 
@@ -114,6 +118,52 @@ class ImageSizeDialog(QDialog):
     def get_size(self):
         return self.slider.value()
 
+class PrintDialog(QDialog):
+    def __init__(self):
+        super().__init__()
+
+        self.setWindowTitle("Print Settings")
+        self.setFixedSize(300, 360)
+        self.setWindowIcon(QIcon('res/icons/print.png'))
+        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
+
+        layout = QVBoxLayout()
+
+        # Group box for paper size
+        paper_group_box = QGroupBox("Paper Size")
+        paper_layout = QVBoxLayout()
+        self.paper_combo_box = QComboBox()
+        self.paper_combo_box.addItems(["A5", "A6", "A7"])
+        paper_layout.addWidget(self.paper_combo_box)
+        paper_group_box.setLayout(paper_layout)
+        layout.addWidget(paper_group_box)
+
+        # Group box for print orientation
+        orientation_group_box = QGroupBox("Orientation")
+        orientation_layout = QVBoxLayout()
+        self.vertical_radio_button = QRadioButton("Portrait")
+        self.horizontal_radio_button = QRadioButton("Landscape")
+        orientation_layout.addWidget(self.vertical_radio_button)
+        orientation_layout.addWidget(self.horizontal_radio_button)
+        orientation_group_box.setLayout(orientation_layout)
+        layout.addWidget(orientation_group_box)
+         
+        # Group box for single or double-sided printing
+        sided_group_box = QGroupBox("Sided")
+        sided_layout = QVBoxLayout()
+        self.single_radio_button = QRadioButton("Single-sided")
+        self.double_radio_button = QRadioButton("Double-sided")
+        sided_layout.addWidget(self.single_radio_button)
+        sided_layout.addWidget(self.double_radio_button)
+        sided_group_box.setLayout(sided_layout)
+        layout.addWidget(sided_group_box)
+
+        # Print button
+        self.print_button = QPushButton("Print")
+        layout.addWidget(self.print_button)
+
+        self.setLayout(layout)
+
 class ApiKeyInputDialog(QDialog):
     def __init__(self):
         super().__init__()
@@ -152,7 +202,7 @@ class Ui_MainWindow(object):
 		self.spell_check_checked = True
 		self.mode = 'light'
 		MainWindow.setObjectName("MainWindow")
-		MainWindow.resize(1000, 800)
+		MainWindow.resize(1200, 800)
 		MainWindow.setWindowIcon(QtGui.QIcon('res/icons/notepad.png'))
 		self.centralwidget = QtWidgets.QWidget(MainWindow)
 		self.centralwidget.setObjectName("centralwidget")
@@ -253,7 +303,7 @@ class Ui_MainWindow(object):
 		icon13.addPixmap(QtGui.QPixmap("res/icons/bold.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
 		self.actionBold.setIcon(icon13)
 		self.actionBold.setObjectName("actionBold")
-		
+	
 		self.actionBold.setCheckable(True)
 		self.actionItalic = QAction(MainWindow)
 		icon14 = QtGui.QIcon()
@@ -312,7 +362,11 @@ class Ui_MainWindow(object):
 		icon_fontcolor.addPixmap(QtGui.QPixmap("res/icons/fontcolor.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
 		self.actionFontColor.setIcon(icon_fontcolor)
 		self.actionFontColor.setObjectName("actionFontColor")
-
+		self.actionPrint = QtWidgets.QAction(MainWindow)
+		icon_print = QtGui.QIcon()
+		icon_print.addPixmap(QtGui.QPixmap("res/icons/print.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+		self.actionPrint.setIcon(icon_print)
+		self.actionPrint.setObjectName("actionPrint")
 		self.actionHighlight = QtWidgets.QAction(MainWindow)
 		icon_highlight = QtGui.QIcon()
 		icon_highlight.addPixmap(QtGui.QPixmap("res/icons/highlight.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -338,6 +392,7 @@ class Ui_MainWindow(object):
 		self.menuFile.addSeparator()
 		self.menuFile.addAction(self.actionSave)
 		self.menuFile.addAction(self.actionSave_as)
+		self.menuFile.addAction(self.actionPrint)
 		self.menuFile.addAction(self.actionExit)
 		self.menuEdit.addAction(self.actionCut)
 		self.menuEdit.addAction(self.actionCopy)
@@ -352,6 +407,7 @@ class Ui_MainWindow(object):
 		self.toolBar.addAction(self.actionOpen)
 		self.toolBar.addAction(self.actionSave)
 		self.toolBar.addAction(self.actionSave_as)
+		self.toolBar.addAction(self.actionPrint)
 		self.toolBar.addSeparator()
 		self.toolBar.addAction(self.actionCut)
 		self.toolBar.addAction(self.actionCopy)
@@ -376,9 +432,14 @@ class Ui_MainWindow(object):
 		self.actionOpen.setShortcut("Ctrl+O")
 		self.actionSave.setShortcut("Ctrl+S")
 		self.actionSave_as.setShortcut("Ctrl+Shift+S")
+		self.actionPrint.setShortcut("Ctrl+P")
 		self.actionCut.setShortcut("Ctrl+X")
 		self.actionCopy.setShortcut("Ctrl+C")
 		self.actionPaste.setShortcut("Ctrl+V")
+		self.actionBold.setShortcut("Ctrl+B")
+		self.actionItalic.setShortcut("Ctrl+I")
+		self.actionUnderline.setShortcut("Ctrl+U")
+		self.actionTranslate.setShortcut("Ctrl+T")
 		self.actionUndo.setShortcut("Ctrl+Z")
 		self.actionRedo.setShortcut("Ctrl+Y")
 		self.actionSearch.setShortcut("Ctrl+F")
@@ -449,6 +510,7 @@ class Ui_MainWindow(object):
 		self.actionOpen.setText(_translate("MainWindow", "Open"))
 		self.actionSave.setText(_translate("MainWindow", "Save"))
 		self.actionSave_as.setText(_translate("MainWindow", "Save as"))
+		self.actionPrint.setText(_translate("MainWindow", "Print"))
 		self.actionCut.setText(_translate("MainWindow", "Cut"))
 		self.actionCopy.setText(_translate("MainWindow", "Copy"))
 		self.actionPaste.setText(_translate("MainWindow", "Paste"))
@@ -485,6 +547,7 @@ class Ui_MainWindow(object):
 		self.actionCut.triggered.connect(self.textEdit.cut)
 		self.actionCopy.triggered.connect(self.textEdit.copy)
 		self.actionPaste.triggered.connect(self.textEdit.paste)
+		self.actionPrint.triggered.connect(self.print_document)
 
 		self.actionUndo.triggered.connect(self.textEdit.undo)
 		self.actionRedo.triggered.connect(self.textEdit.redo)
@@ -647,11 +710,13 @@ class Ui_MainWindow(object):
 		if color.isValid():
 			self.currentHighlightColor = color
 			self.textEdit.setTextBackgroundColor(color)
+
 	def toggle_bold(self):
 		if self.actionBold.isChecked():
 			self.textEdit.setFontWeight(QtGui.QFont.Bold)
 		else:
 			self.textEdit.setFontWeight(QtGui.QFont.Normal)
+
 	def toggle_italic(self):
 		# Khi tính năng in nghiêng chữ được kích hoạt hoặc tắt
 		if self.actionItalic.isChecked():
@@ -677,6 +742,7 @@ class Ui_MainWindow(object):
 		format = self.textEdit.currentCharFormat()
 		format.setFontUnderline(underline)
 		self.textEdit.setCurrentCharFormat(format)
+
 	def toggle_mode(self):
 		if self.actionMode.isChecked():  # Nếu đang ở chế độ tối
 			self.setStyleSheet("background-color: #222; color: #FFF;")
@@ -697,6 +763,7 @@ class Ui_MainWindow(object):
 			filedata = f.read()
 			self.textEdit.setText(filedata)
 			f.close()
+
 	def remove_highlight(self):
 		cursor = self.ui.textEdit.textCursor()
 		cursor.clearSelection()
@@ -741,7 +808,10 @@ class Ui_MainWindow(object):
 			f.write(filedata)
 			f.close()
 
-	
+	def print_document(self):
+		print_dialog = PrintDialog()  
+		print_dialog.exec_()
+		
 	def exitapp(self):
 		reply = QMessageBox.question(None, 'Message', 'Do you want to save the file before exiting?', QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel)
 
@@ -1085,6 +1155,7 @@ class Ui_MainWindow(object):
 					in_word = False
 		if in_word:
 			yield start_pos, len(text), text[start_pos:]
+			
 	def translate_text(self):
 		dialog = LanguageDialog(self.current_language_code, self.target_language_code)
 		
@@ -1144,21 +1215,11 @@ class MainScreen(QMainWindow):
                     if file_path.lower().endswith(('.png', '.jpg', '.bmp', '.gif')):
                         self.insert_image(file_path)
 
-    def insert_image(self, file_path):
-        # Hiển thị hộp thoại để chọn kích thước ảnh
-        size_dialog = ImageSizeDialog()
-        if size_dialog.exec_():
-            size = size_dialog.get_size()
-
-            # Tạo đối tượng QTextImageFormat từ tệp ảnh và kích thước
-            image_format = QTextImageFormat()
-            image_format.setName(file_path)
-            image_format.setWidth(size)
-
-            # Chèn ảnh vào vị trí hiện tại của con trỏ
-            cursor = self.ui.textEdit.textCursor()
-            cursor.insertImage(image_format)
-	
+    def print_dialog(self):
+        printer = QPrinter()
+        dialog = QPrintDialog(printer, self)
+        if dialog.exec_() == QPrintDialog.Accepted:
+            self.textEdit.print(self.printer)
 
 		
 app = QApplication(sys.argv)
