@@ -35,7 +35,7 @@ Quy định ứng xử này áp dụng cả trong không gian dự án và trong
 
 ## Thực thi
 
-Các trường hợp của hành vi lạm dụng, quấy rối hoặc không chấp nhận khác có thể được báo cáo bằng cách liên hệ với nhóm dự án tại [contact@example.com](mailto:contact@example.com). Tất cả các khiếu nại sẽ được xem xét và điều tra và sẽ dẫn đến một phản ứng được xem là cần thiết và phù hợp với tình hình. Nhóm dự án có trách nhiệm giữ bí mật đối với người báo cáo sự cố. Các chi tiết thêm về các chính sách thực thi cụ thể có thể được đăng tải riêng biệt.
+Các trường hợp của hành vi lạm dụng, quấy rối hoặc không chấp nhận khác có thể được báo cáo bằng cách liên hệ với nhóm dự án qua [trang web](https://smart-note-ai.web.app/#). Tất cả các khiếu nại sẽ được xem xét và điều tra và sẽ dẫn đến một phản ứng được xem là cần thiết và phù hợp với tình hình. Nhóm dự án có trách nhiệm giữ bí mật đối với người báo cáo sự cố. Các chi tiết thêm về các chính sách thực thi cụ thể có thể được đăng tải riêng biệt.
 
 Các người bảo trì dự án không tuân thủ hoặc thực hiện Quy định Ứng xử một cách trung thực có thể đối mặt với hậu quả tạm thời hoặc vĩnh viễn do các thành viên khác của lãnh đạo dự án quyết định.
 
