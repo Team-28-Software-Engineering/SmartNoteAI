@@ -1,20 +1,13 @@
-UET-IAI License
+Bản quyền (c) [22/4/2024] [Team28SoftwareEngineering@gmail.com]
 
-Bản quyền (c) [22/4/2024] [Team28]
+Phần mềm này là mã nguồn mở và chưa được cấp phép. Vui lòng xem tệp LICENSE trong dự án để biết chi tiết về quyền sử dụng.
 
-Đây là mã nguồn mở được cấp phép theo Giấy phép UET-IAI. Xin vui lòng xem tệp LICENSE trong dự án này để biết thông tin chi tiết về quyền sử dụng.
+Ghi chú này áp dụng cho tất cả các phần của dự án, trừ khi có ghi chú khác rõ ràng.
 
-Giấy phép này áp dụng cho tất cả các phần của dự án trừ những phần được ghi chú khác rõ ràng.
+Bản quyền (c) [2024] [Team28SoftwareEngineering@gmail.com]
 
----
+Chúng tôi cấp phép miễn phí cho bất kỳ ai có được một bản sao của phần mềm này và các tệp tài liệu liên quan (gọi là "Phần mềm"), cho phép họ sử dụng, sao chép, sửa đổi, hợp nhất, công bố, phân phối, cấp phép lại và/hoặc bán các bản sao của Phần mềm, và cho phép những người được cung cấp Phần mềm làm như vậy, với điều kiện sau:
 
-The UET-IAI License (UET)
+Thông báo bản quyền trên và thông báo cấp phép này phải có trong tất cả các bản sao hoặc phần quan trọng của Phần mềm.
 
-Copyright (c) [2024] [Team28]
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
+PHẦN MỀM ĐƯỢC CUNG CẤP "NGUYÊN TRẠNG", KHÔNG CÓ BẢO HÀNH NÀO, DÙ RÕ RÀNG HAY NGỤ Ý, BAO GỒM NHƯNG KHÔNG GIỚI HẠN Ở CÁC BẢO HÀNH VỀ KHẢ NĂNG BÁN ĐƯỢC, PHÙ HỢP VỚI MỤC ĐÍCH CỤ THỂ VÀ KHÔNG VI PHẠM. TRONG BẤT KỲ TRƯỜNG HỢP NÀO, CÁC TÁC GIẢ HOẶC CHỦ SỞ HỮU BẢN QUYỀN KHÔNG CHỊU TRÁCH NHIỆM VỀ BẤT KỲ YÊU CẦU, THIỆT HẠI HOẶC TRÁCH NHIỆM NÀO KHÁC, DÙ TRONG HỢP ĐỒNG, HÀNH VI XÂM PHẠM HAY BẤT KỲ TÌNH HUỐNG NÀO KHÁC, PHÁT SINH TỪ, DO HOẶC LIÊN QUAN ĐẾN PHẦN MỀM HOẶC VIỆC SỬ DỤNG HOẶC CÁC GIAO DỊCH KHÁC TRONG PHẦN MỀM.
