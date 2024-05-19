@@ -10,7 +10,7 @@ https://smart-note-ai.web.app/
 Bạn có thể tải ứng dụng cho Windows [tại đây](https://drive.google.com/drive/u/0/folders/11xO77vFp0IFRT-4FJymU4WFRsOSwdIgK)
 
 ## Download for Macos
-Bạn có thể tải ứng dụng cho Macos [tại đây](https://drive.google.com/file/d/1eYQvJyxWkRRR-GYn87hw_L6tQkt6YNwo/view?usp=sharing)
+Bạn có thể tải ứng dụng cho Macos [tại đây](https://drive.google.com/file/d/1SvYOPh7bP75K-eG34GKsCmLsS1aaaHdN/view?usp=sharing)
 
 ## Cài đặt
 ### Yêu cầu
