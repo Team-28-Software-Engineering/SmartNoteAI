@@ -781,32 +781,46 @@ class Ui_MainWindow(object):
 				self.textEdit.ensureCursorVisible()
 
 	def savefile(self):
-
 		if not self.filepath:
-			filename, _ = QFileDialog.getSaveFileName(None,"QFileDialog.getOpenFileName()", "NewFile","All Files (*);;Python Files (*.py)")
-			self.filepath = filename	
+			filename, _ = QFileDialog.getSaveFileName(
+				None,
+				"Save File",
+				"NewFile.txt",  # Tên file mặc định là NewFile.txt
+				"Text Files (*.txt);;Word Documents (*.doc *.docx);;Markdown Files (*.md);;JSON Files (*.json);;All Files (*)"
+			)
+			if filename:  # Kiểm tra xem filename có tồn tại không
+				self.filepath = filename
+			else:
+				return  # Nếu người dùng hủy, thoát khỏi hàm mà không làm gì thêm
 
-		
+		filename = self.filepath
 
-		else:
-			filename = self.filepath
-			f = open(filename, 'w')
-			filedata = self.textEdit.toPlainText()
-			f.write(filedata)
-			f.close()
-
+		# Lưu nội dung vào file
+		try:
+			with open(filename, 'w', encoding='utf-8') as f:
+				filedata = self.textEdit.toPlainText()
+				f.write(filedata)
+		except Exception as e:
+			print(f"Error saving file: {e}")
 
 	def saveasfile(self):
-		filename, _ = QFileDialog.getSaveFileName(None,"QFileDialog.getOpenFileName()", "NewFile","All Files (*);;Python Files (*.py)")	
-
-		if filename == "":
-			pass
-
+		filename, _ = QFileDialog.getSaveFileName(
+			None,
+			"Save As File",
+			"NewFile.txt",  # Tên file mặc định là NewFile.txt
+			"Text Files (*.txt);;Word Documents (*.doc *.docx);;Markdown Files (*.md);;JSON Files (*.json);;All Files (*)"
+		)
+		
+		if filename:
+			try:
+				with open(filename, 'w', encoding='utf-8') as f:
+					filedata = self.textEdit.toPlainText()
+					f.write(filedata)
+				self.filepath = filename  # Cập nhật filepath mới sau khi lưu thành công
+			except Exception as e:
+				print(f"Error saving file: {e}")
 		else:
-			f = open(filename, 'w')
-			filedata = self.textEdit.toPlainText()
-			f.write(filedata)
-			f.close()
+			return  # Nếu người dùng hủy, thoát khỏi hàm mà không làm gì thêm
 
 	def print_document(self):
 		print_dialog = PrintDialog()  
