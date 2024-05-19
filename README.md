@@ -6,8 +6,10 @@
 Vào trang web này để xem giới thiệu và tải phần mềm này về
 https://smartnoteai-68f02.web.app/
 
+## Download for Windows
+Bạn có thể tải ứng dụng cho Windows [tại đây](https://drive.google.com/drive/u/0/folders/11xO77vFp0IFRT-4FJymU4WFRsOSwdIgK)
 
-## Download for macos
+## Download for Macos
 Bạn có thể tải ứng dụng cho Macos [tại đây](https://drive.google.com/file/d/1eYQvJyxWkRRR-GYn87hw_L6tQkt6YNwo/view?usp=sharing)
 
 ## Cài đặt
