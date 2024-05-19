@@ -7,12 +7,10 @@ Vào trang web này để xem giới thiệu và tải phần mềm này về
 https://smart-note-ai.web.app/
 
 ## Download for Windows
-Bạn có thể tải ứng dụng cho Windows [tại đây](https://drive.google.com/drive/u/0/folders/11xO77vFp0IFRT-4FJymU4WFRsOSwdIgK)
-
-## Download for Macos
-Bạn có thể tải ứng dụng cho Macos [tại đây](https://drive.google.com/file/d/1SvYOPh7bP75K-eG34GKsCmLsS1aaaHdN/view?usp=sharing)
+Bạn có thể tải ứng dụng cho các hệ điều hành khác nhau [tại đây](https://smart-note-ai.web.app/#)
 
 ## Cài đặt
+Sau đây là hướng dẫn cài đặt các thư viện và vài điều kiện cần thiết để có thể khởi chạy nếu bạn muốn chạy chương trình bằng code (chỉ áp dụng đối với window)
 ### Yêu cầu
 Cài đặt các thư viện cần thiết
 ```
@@ -20,6 +18,7 @@ pip install -r requirements.txt
 ```
 ### Cài đặt ffmpeg
 Vì ffmpeg không thể cài đặt trực tiếp bằng lệnh pip trên window, bạn cần thực hiện theo các bước sau nếu muốn chương trình không xảy ra lỗi khi chạy
+
 Tải ffmped [tại đây](https://www.gyan.dev/ffmpeg/builds/ffmpeg-git-essentials.7z) và giải nén
 
 Sau đó sao chép vđịa chỉ path của tệp bin trong forder đã giải nén và vào thanh tìm kiếm và mở Edit the System environment variables, sau đó mở Environment Variables 
